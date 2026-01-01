@@ -318,7 +318,7 @@ def video_stream(request, pk):
             if start < 0 or end >= file_size or start > end:
                 start, end = 0, file_size - 1
             
-            def file_iterator(file_path, start, end, chunk_size=8192):
+            def file_iterator_range(file_path, start, end, chunk_size=8192):
                 with open(file_path, 'rb') as f:
                     f.seek(start)
                     bytes_remaining = end - start + 1
@@ -331,7 +331,7 @@ def video_stream(request, pk):
                         bytes_remaining -= len(chunk)
             
             response = StreamingHttpResponse(
-                file_iterator(file_path, start, end),
+                file_iterator_range(file_path, start, end),
                 status=206,
                 content_type=mime_type
             )
@@ -343,7 +343,7 @@ def video_stream(request, pk):
             pass
     
     # Regular full file response
-    def file_iterator(file_path, chunk_size=8192):
+    def file_iterator_full(file_path, chunk_size=8192):
         with open(file_path, 'rb') as f:
             while True:
                 chunk = f.read(chunk_size)
@@ -351,7 +351,7 @@ def video_stream(request, pk):
                     break
                 yield chunk
     
-    response = StreamingHttpResponse(file_iterator(file_path), content_type=mime_type)
+    response = StreamingHttpResponse(file_iterator_full(file_path), content_type=mime_type)
     response['Content-Length'] = file_size
     response['Accept-Ranges'] = 'bytes'
     return response

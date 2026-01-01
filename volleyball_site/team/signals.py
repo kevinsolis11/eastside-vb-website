@@ -1,53 +1,26 @@
 """Django signals for GameVideo model - handles automatic MP4 conversion."""
 import os
-import threading
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.files.base import ContentFile
 from team.models import GameVideo
-from team.video_converter import should_convert_to_mp4, get_mp4_filename, convert_to_mp4
+from team.video_converter import should_convert_to_mp4, get_mp4_filename
 from django.conf import settings
 
-
-def convert_video_async(video_id: int, original_file_path: str, output_file_path: str):
-    """
-    Convert video in background thread.
-    
-    Args:
-        video_id: GameVideo instance ID
-        original_file_path: Full path to original video file
-        output_file_path: Full path where MP4 should be saved
-    """
-    try:
-        # Perform conversion
-        if convert_to_mp4(original_file_path, output_file_path):
-            # Update database with new filename
-            video = GameVideo.objects.get(id=video_id)
-            
-            # Get relative path from media root
-            media_root = settings.MEDIA_ROOT
-            if isinstance(media_root, str):
-                relative_path = os.path.relpath(output_file_path, media_root)
-            else:
-                relative_path = os.path.relpath(output_file_path, str(media_root))
-            
-            # Update video file
-            video.video.name = relative_path
-            video.save(update_fields=['video', 'updated_at'])
-            
-            print(f"✓ Video {video_id} converted and database updated")
-        else:
-            print(f"✗ Failed to convert video {video_id}")
-    
-    except Exception as e:
-        print(f"✗ Error in background conversion: {str(e)}")
+# Try to import Celery task, fall back gracefully if not available
+try:
+    from team.tasks import convert_video_task
+    CELERY_AVAILABLE = True
+except ImportError:
+    CELERY_AVAILABLE = False
+    print("⚠️ Warning: Celery not available, video conversion will be skipped")
 
 
 @receiver(post_save, sender=GameVideo)
 def convert_video_on_upload(sender, instance, created, **kwargs):
     """
-    Signal handler: Convert video to MP4 after upload if needed.
-    Runs conversion in background thread to avoid blocking the upload.
+    Signal handler: Queue video conversion to MP4 after upload if needed.
+    Uses Celery for reliable background task processing.
+    Falls back gracefully if Celery is not available.
     """
     if not created:
         return  # Only convert on initial upload, not on updates
@@ -78,12 +51,16 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
     else:
         relative_path = os.path.relpath(output_file_path, str(media_root))
     
-    # Start conversion in background thread (non-blocking)
-    thread = threading.Thread(
-        target=convert_video_async,
-        args=(instance.id, original_file_path, output_file_path),
-        daemon=True
-    )
-    thread.start()
-    
-    print(f"→ Conversion queued for {filename} → {mp4_filename}")
+    if CELERY_AVAILABLE:
+        # Queue Celery task for conversion (non-blocking, persistent)
+        try:
+            convert_video_task.delay(
+                video_id=instance.id,
+                original_file_path=original_file_path,
+                output_file_path=output_file_path
+            )
+            print(f"→ Celery task queued for {filename} → {mp4_filename}")
+        except Exception as e:
+            print(f"✗ Failed to queue Celery task: {str(e)}")
+    else:
+        print(f"⚠️ Celery not available: {filename} will not be converted to MP4")

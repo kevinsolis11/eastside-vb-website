@@ -7,5 +7,13 @@
     "numReplicas": 1,
     "restartPolicyMaxRetries": 10,
     "restartPolicyWindowMs": 600000
+  },
+  "services": {
+    "web": {
+      "startCommand": "cd volleyball_site && gunicorn volleyball_site.wsgi --bind 0.0.0.0:8000"
+    },
+    "worker": {
+      "startCommand": "cd volleyball_site && celery -A volleyball_site worker -l info --concurrency=2"
+    }
   }
 }

@@ -266,3 +266,55 @@ def parse_video_analysis(analysis_text: str) -> dict:
 def analyze_video_task(self, video_id: int):
     """Celery task wrapper for video analysis."""
     return analyze_video_sync(video_id)
+
+
+# ==================== VIDEO CONVERSION TASKS ====================
+
+@shared_task(bind=True, max_retries=3)
+def convert_video_task(self, video_id: int, original_file_path: str, output_file_path: str):
+    """
+    Celery task to convert video to MP4 format.
+    Reliable background task processing with automatic retries.
+    
+    Args:
+        video_id: GameVideo instance ID
+        original_file_path: Full path to original video file
+        output_file_path: Full path where MP4 should be saved
+    
+    Returns:
+        Success message or raises exception for retry
+    """
+    import os
+    from team.video_converter import convert_to_mp4
+    from team.models import GameVideo
+    
+    try:
+        logger.info(f"🎬 Starting video conversion task for video {video_id}")
+        
+        # Perform conversion
+        if convert_to_mp4(original_file_path, output_file_path):
+            # Update database with new filename
+            video = GameVideo.objects.get(id=video_id)
+            
+            # Get relative path from media root
+            media_root = settings.MEDIA_ROOT
+            if isinstance(media_root, str):
+                relative_path = os.path.relpath(output_file_path, media_root)
+            else:
+                relative_path = os.path.relpath(output_file_path, str(media_root))
+            
+            # Update video file
+            video.video.name = relative_path
+            video.save(update_fields=['video', 'updated_at'])
+            
+            logger.info(f"✓ Video {video_id} converted and database updated")
+            return f"Video {video_id} successfully converted to MP4"
+        else:
+            error_msg = f"FFmpeg conversion failed for video {video_id}"
+            logger.error(error_msg)
+            raise Exception(error_msg)
+    
+    except Exception as exc:
+        logger.exception(f"Error in video conversion task for video {video_id}: {str(exc)}")
+        # Retry up to 3 times with exponential backoff (1 min, 2 min, 4 min)
+        raise self.retry(exc=exc, countdown=60 * (self.request.retries + 1))

@@ -271,17 +271,17 @@ def video_detail(request, pk):
         request.session['view_count_incremented'] = True
     
     # Detect video format
-    video_url = video.video.url.lower()
-    if video_url.endswith('.mov'):
-        video_mime_type = 'video/quicktime'
-    elif video_url.endswith('.mkv'):
-        video_mime_type = 'video/x-matroska'
-    elif video_url.endswith('.webm'):
-        video_mime_type = 'video/webm'
-    elif video_url.endswith('.avi'):
-        video_mime_type = 'video/x-msvideo'
-    else:
-        video_mime_type = 'video/mp4'
+    video_mime_type = 'video/mp4'
+    if video.video:
+        video_url = video.video.url.lower()
+        if video_url.endswith('.mov'):
+            video_mime_type = 'video/quicktime'
+        elif video_url.endswith('.mkv'):
+            video_mime_type = 'video/x-matroska'
+        elif video_url.endswith('.webm'):
+            video_mime_type = 'video/webm'
+        elif video_url.endswith('.avi'):
+            video_mime_type = 'video/x-msvideo'
     
     context = {
         'video': video,

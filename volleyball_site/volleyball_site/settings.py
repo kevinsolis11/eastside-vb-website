@@ -191,6 +191,17 @@ if os.environ.get('RAILWAY_ENVIRONMENT'):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     ALLOWED_HOSTS = ['*']  # Railway handles routing
+    
+    # S3 storage for media files
+    if os.environ.get('USE_S3'):
+        INSTALLED_APPS.append('storages')
+        AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+        AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+        AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+        AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+        AWS_LOCATION = 'media'
+        MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+        DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Use WhiteNoise for simple static file serving (if installed)
 if 'whitenoise.middleware.WhiteNoiseMiddleware' not in globals().get('MIDDLEWARE', []):

@@ -9,7 +9,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.http import Http404, HttpResponse
 from datetime import timedelta
-from django.conf import settings
 from . import tasks
 from .tasks import send_invite_mail_sync
 
@@ -288,11 +287,11 @@ def video_stream(request, pk):
     if not video.can_view(request.user):
         raise Http404("Video not found or you don't have permission to view it.")
     
-    if not video.video_file:
+    if not video.video:
         raise Http404("Video file not found.")
     
-    file_path = video.video_file.path
-    file_size = video.video_file.size
+    file_path = video.video.path
+    file_size = video.video.size
     
     # Support for range requests (skip to different parts of video)
     range_header = request.META.get('HTTP_RANGE', '')
@@ -315,7 +314,8 @@ def video_stream(request, pk):
         return response
     else:
         # Regular response without range support
-        response = HttpResponse(open(file_path, 'rb'), content_type='video/mp4')
+        with open(file_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='video/mp4')
         response['Content-Length'] = file_size
         response['Accept-Ranges'] = 'bytes'
         return response

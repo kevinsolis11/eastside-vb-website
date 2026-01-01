@@ -20,7 +20,7 @@
             <div class="video-player mb-4">
                 {% if video.video %}
                     <video width="100%" height="auto" controls style="background: #000; border-radius: 8px;">
-                        <source src="{{ video.video.url }}" type="video/mp4">
+                        <source src="{% url 'team:video_stream' video.pk %}" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                 {% else %}

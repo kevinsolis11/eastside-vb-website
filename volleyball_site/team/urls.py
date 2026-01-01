@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import (
     PlayerListView, PlayerDetailView, signup, coach_codes,
-    video_upload, video_list, video_detail, video_edit, video_delete,
+    video_upload, video_list, video_detail, video_edit, video_delete, video_stream,
     player_stats_list, player_stats_edit, player_stats_view, player_dashboard, player_edit,
     generate_ai_summary, announcement_list, announcement_create, announcement_edit, 
     announcement_delete, announcement_feed, request_video_analysis, video_analysis_detail,
@@ -28,6 +28,7 @@ urlpatterns = [
     path('videos/', video_list, name='video_list'),
     path('videos/upload/', video_upload, name='video_upload'),
     path('videos/<int:pk>/', video_detail, name='video_detail'),
+    path('videos/<int:pk>/stream/', video_stream, name='video_stream'),
     path('videos/<int:pk>/edit/', video_edit, name='video_edit'),
     path('videos/<int:pk>/delete/', video_delete, name='video_delete'),
     

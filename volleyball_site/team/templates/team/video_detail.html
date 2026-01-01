@@ -20,9 +20,10 @@
             <div class="video-player mb-4">
                 {% if video.video %}
                     <div style="position: relative; width: 100%; padding-bottom: 56.25%; background: #000; border-radius: 8px; overflow: hidden;">
-                        <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" controls>
+                        {% comment %}Debug: {{ video.video.url }}{% endcomment %}
+                        <video style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" controls preload="metadata">
                             <source src="{{ video.video.url }}" type="video/mp4">
-                            Your browser does not support the video tag.
+                            Your browser does not support the video tag. Video URL: {{ video.video.url }}
                         </video>
                     </div>
                 {% else %}
@@ -71,8 +72,7 @@
 
                     <div class="small text-muted">
                         <p>
-                            <strong>Uploaded by:</strong> {{
-                            video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
+                            <strong>Uploaded by:</strong> {{ video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
                             <br />
                             <strong>Uploaded:</strong> {{ video.uploaded_at|date:"F d, Y \a\t H:i" }}
                             <br />

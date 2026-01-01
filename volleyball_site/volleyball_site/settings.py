@@ -187,7 +187,7 @@ ALLOWED_HOSTS = [h for h in _os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,l
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Railway.app specific settings
-if os.environ.get('RAILWAY_ENVIRONMENT'):
+if _os.environ.get('RAILWAY_ENVIRONMENT'):
     # Production settings for Railway
     DEBUG = False
     # Railway handles HTTPS at the edge, so don't redirect
@@ -205,31 +205,30 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' not in globals().get('MIDDLEWARE
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 
 # Celery settings
-CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+CELERY_BROKER_URL = _os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
 
 # OpenAI API settings
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', None)
+OPENAI_API_KEY = _os.environ.get('OPENAI_API_KEY', None)
 
 # GPT model configuration
 # Specify which GPT model to use for AI summaries and other OpenAI tasks
 # Options: 'gpt-3.5-turbo', 'gpt-4', 'gpt-4-turbo', 'gpt-5.1-codex-max', etc.
-OPENAI_GPT_MODEL = os.environ.get('OPENAI_GPT_MODEL', 'gpt-5.1-codex-max')
+OPENAI_GPT_MODEL = _os.environ.get('OPENAI_GPT_MODEL', 'gpt-5.1-codex-max')
 
 # GPT-5.1-Codex-Max configuration
 # Enable GPT-5.1-Codex-Max for all clients (set to True for production deployment)
-ENABLE_GPT_5_1_CODEX_MAX = os.environ.get('ENABLE_GPT_5_1_CODEX_MAX', 'False') == 'True'
+ENABLE_GPT_5_1_CODEX_MAX = _os.environ.get('ENABLE_GPT_5_1_CODEX_MAX', 'False') == 'True'
 
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
+CELERY_RESULT_BACKEND = _os.environ.get('CELERY_RESULT_BACKEND', CELERY_BROKER_URL)
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 # Email defaults
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
-DEFAULT_FROM_NAME = os.environ.get('DEFAULT_FROM_NAME', 'Eastside VB')
-DEFAULT_REPLY_TO = os.environ.get('DEFAULT_REPLY_TO', '') or None
+DEFAULT_FROM_EMAIL = _os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@localhost')
+DEFAULT_FROM_NAME = _os.environ.get('DEFAULT_FROM_NAME', 'Eastside VB')
+DEFAULT_REPLY_TO = _os.environ.get('DEFAULT_REPLY_TO', '') or None

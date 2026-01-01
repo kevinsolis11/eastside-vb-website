@@ -166,8 +166,14 @@ if os.environ.get('RAILWAY_ENVIRONMENT'):
 else:
     MEDIA_ROOT = BASE_DIR / 'media'
 
-# Allow large file uploads (35GB for videos)
-DATA_UPLOAD_MAX_MEMORY_SIZE = 35 * 1024 * 1024 * 1024  # 35GB
+# Media file streaming for large videos
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
+
+# Stream large responses (videos)
+STREAMING_CHUNK_SIZE = 8192  # 8KB chunks for smooth video streaming
 FILE_UPLOAD_MAX_MEMORY_SIZE = 35 * 1024 * 1024 * 1024  # 35GB
 
 # --- Environment-based overrides and production-ready settings ---

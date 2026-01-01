@@ -280,6 +280,48 @@ def video_detail(request, pk):
 
 
 @login_required
+def video_stream(request, pk):
+    """Stream video file with range request support for faster loading."""
+    video = get_object_or_404(GameVideo, pk=pk)
+    
+    # Check access
+    if not video.can_view(request.user):
+        raise Http404("Video not found or you don't have permission to view it.")
+    
+    if not video.video_file:
+        raise Http404("Video file not found.")
+    
+    file_path = video.video_file.path
+    file_size = video.video_file.size
+    
+    # Support for range requests (skip to different parts of video)
+    range_header = request.META.get('HTTP_RANGE', '')
+    
+    if range_header.startswith('bytes='):
+        range_value = range_header.split('=')[1]
+        start = int(range_value.split('-')[0]) if range_value.split('-')[0] else 0
+        end = int(range_value.split('-')[1]) if range_value.split('-')[1] else file_size - 1
+        
+        response = HttpResponse()
+        response.status_code = 206
+        response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
+        response['Content-Length'] = str(end - start + 1)
+        response['Content-Type'] = 'video/mp4'
+        response['Accept-Ranges'] = 'bytes'
+        
+        with open(file_path, 'rb') as f:
+            f.seek(start)
+            response.write(f.read(end - start + 1))
+        return response
+    else:
+        # Regular response without range support
+        response = HttpResponse(open(file_path, 'rb'), content_type='video/mp4')
+        response['Content-Length'] = file_size
+        response['Accept-Ranges'] = 'bytes'
+        return response
+
+
+@login_required
 @user_passes_test(is_coach)
 def video_edit(request, pk):
     """Coach edits video metadata."""

@@ -9,5 +9,3 @@ whitenoise==6.11.0
 celery
 redis
 django-celery-beat
-boto3==1.28.85
-django-storages==1.14.2

@@ -7,5 +7,11 @@
     "numReplicas": 1,
     "restartPolicyMaxRetries": 10,
     "restartPolicyWindowMs": 600000
-  }
+  },
+  "volumes": [
+    {
+      "name": "media",
+      "mountPath": "/data/media"
+    }
+  ]
 }

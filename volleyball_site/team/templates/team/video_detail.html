@@ -37,10 +37,6 @@
                             </video>
                         {% endif %}
                     </div>
-                    <div class="alert alert-warning mt-2">
-                        <strong>Debug Info:</strong> Video URL: <code>{{ video.video.url }}</code><br>
-                        Video file: <code>{{ video.video }}</code>
-                    </div>
                 {% else %}
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i> No video file has been uploaded yet.
@@ -94,7 +90,16 @@
                             <strong>File Size:</strong> {{ video.file_size_mb|floatformat:1 }} MB
                         </p>
                     </div>
-                </div>
+                    <!-- Debug Info Panel -->
+                    <div class="alert alert-secondary mt-3">
+                        <strong>🔍 Video Debug Info:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li><strong>Video URL:</strong> <code>{{ video.video.url }}</code></li>
+                            <li><strong>Video file:</strong> <code>{{ video.video }}</code></li>
+                            <li><strong>View count:</strong> {{ video.view_count }}</li>
+                            <li><strong>Video ID:</strong> {{ video.id }}</li>
+                        </ul>
+                    </div>                </div>
             </div>
 
             {% if is_coach or is_uploader %}

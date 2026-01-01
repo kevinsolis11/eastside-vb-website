@@ -6,5 +6,6 @@ class TeamConfig(AppConfig):
     verbose_name = 'Team'
     
     def ready(self):
-        """Register signal handlers when app is ready."""
+        """Register signal handlers and startup checks when app is ready."""
         import team.signals  # noqa
+        import team.checks  # noqa

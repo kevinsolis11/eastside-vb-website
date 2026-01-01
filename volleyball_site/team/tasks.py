@@ -52,9 +52,23 @@ def send_invite_mail_sync(codes, email, signup_url):
 def send_invite_mail(self, codes, email, signup_url):
     """Celery task wrapper around the synchronous send helper."""
     try:
+        # Check email configuration before attempting
+        email_host = getattr(settings, 'EMAIL_HOST', '').strip()
+        email_user = getattr(settings, 'EMAIL_HOST_USER', '').strip()
+        
+        if not email_host or email_host == 'localhost' or not email_user:
+            logger.error(
+                'Email not configured (EMAIL_HOST=%s, EMAIL_HOST_USER=%s). '
+                'Cannot send invite to %s. Please configure email settings.',
+                email_host, email_user, email
+            )
+            raise Exception(
+                'Email server not configured. Set EMAIL_HOST_USER and EMAIL_HOST in environment.'
+            )
+        
         return send_invite_mail_sync(codes, email, signup_url)
-    except Exception:
-        logger.exception('Failed to send invite email to %s', email)
+    except Exception as exc:
+        logger.exception('Failed to send invite email to %s: %s', email, str(exc))
         raise
 
 

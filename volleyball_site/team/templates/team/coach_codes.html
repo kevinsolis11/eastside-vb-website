@@ -1,26 +1,152 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Generate Access Codes - Eastside VB{% endblock %}
+
 {% block content %}
-<h1>Coach - Access Codes</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Generate</button>
-</form>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-info text-white">
+                    <h2 class="mb-0">🔑 Generate Access Codes</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="form-group mb-3">
+                            <label for="{{ form.role.id_for_label }}" class="form-label"><strong>Role</strong></label>
+                            {{ form.role }}
+                            {% if form.role.errors %}<div class="text-danger">{{ form.role.errors }}</div>{% endif %}
+                            <small class="form-text text-muted">Player or Manager access</small>
+                        </div>
 
-{% if created %}
-  <h2>Created</h2>
-  <ul>
-  {% for c in created %}
-    <li>{{ c.code }} ({{ c.role }})</li>
-  {% endfor %}
-  </ul>
-{% endif %}
+                        <div class="form-group mb-3">
+                            <label for="{{ form.count.id_for_label }}" class="form-label"><strong>Number of Codes</strong></label>
+                            {{ form.count }}
+                            {% if form.count.errors %}<div class="text-danger">{{ form.count.errors }}</div>{% endif %}
+                        </div>
 
-<h2>Recent Codes</h2>
-<ul>
-{% for c in codes %}
-  <li>{{ c.code }} — {{ c.role }} — {{ c.is_used|yesno:"used,unused" }}</li>
-{% empty %}
-  <li>No codes yet</li>
-{% endfor %}
-</ul>
+                        <div class="form-group mb-3">
+                            <label for="{{ form.expiry_days.id_for_label }}" class="form-label"><strong>Expiry (days)</strong></label>
+                            {{ form.expiry_days }}
+                            {% if form.expiry_days.errors %}<div class="text-danger">{{ form.expiry_days.errors }}</div>{% endif %}
+                            <small class="form-text text-muted">Leave empty for no expiry</small>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label"><strong>Send Codes Via Email</strong></label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger">{{ form.email.errors }}</div>{% endif %}
+                            <small class="form-text text-muted">Optional: Coach or player email address</small>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-plus-circle"></i> Generate Codes
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if messages %}
+                        <div class="mt-4">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if created %}
+                <div class="card mt-4 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="mb-0">✓ Created Codes</h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">{{ created|length }} code(s) created successfully.</p>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Role</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for code in created %}
+                                        <tr>
+                                            <td><code>{{ code.code }}</code></td>
+                                            <td><span class="badge bg-primary">{{ code.get_role_display }}</span></td>
+                                            <td><span class="badge bg-success">Unused</span></td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-muted small mt-3">
+                            <strong>Share these codes:</strong> Players/managers can use them to sign up at 
+                            <code>{{ request.build_absolute_uri '/signup/' }}</code>
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">ℹ️ Email Not Working?</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">
+                        If email codes aren't being sent:
+                    </p>
+                    <ol class="small">
+                        <li>Codes are still generated ✓</li>
+                        <li>Share them manually with players</li>
+                        <li>Contact admin to configure Gmail/email</li>
+                    </ol>
+                    <div class="alert alert-info small mt-3">
+                        <strong>Setup email:</strong> Admin needs to set:
+                        <br/><code>EMAIL_HOST_USER</code>
+                        <br/><code>EMAIL_HOST_PASSWORD</code>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📋 All Codes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">Recent {{ codes|length }} codes:</p>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <tbody>
+                                {% for code in codes %}
+                                    <tr>
+                                        <td><code class="small">{{ code.code }}</code></td>
+                                        <td>
+                                            <span class="badge bg-{{ code.is_used|yesno:'danger,success' }} small">
+                                                {{ code.is_used|yesno:'Used,Unused' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr><td colspan="2" class="text-muted small">No codes yet</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

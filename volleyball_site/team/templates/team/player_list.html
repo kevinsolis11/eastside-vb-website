@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Players - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">Team Players</h1>
+            <p class="text-muted">Roster of all team members</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'team:player_stats_list' %}" class="btn btn-primary">
+                <i class="bi bi-bar-chart"></i> View All Stats
+            </a>
+        </div>
+    </div>
+
+    <!-- Players Grid -->
+    {% if players %}
+        <div class="row">
+            {% for player in players %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 player-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="card-title mb-1">
+                                        {{ player.first_name }} {{ player.last_name }}
+                                    </h5>
+                                    {% if player.number %}
+                                        <p class="card-text text-muted">
+                                            <i class="bi bi-shirt"></i> #{{ player.number }}
+                                        </p>
+                                    {% endif %}
+                                </div>
+                                {% if player.number %}
+                                    <span class="badge bg-primary">#{{ player.number }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if player.position %}
+                                <p class="card-text mb-3">
+                                    <strong>Position:</strong> {{ player.position }}
+                                </p>
+                            {% endif %}
+
+                            <p class="card-text text-muted small mb-3">
+                                Joined: {{ player.created_at|date:"M d, Y" }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'team:player-detail' player.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View Profile
+                                </a>
+                                <a href="{% url 'team:player_stats_view' player.pk %}" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-bar-chart"></i> View Stats
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No players found yet.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .player-card {
+        transition: transform 0.2s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .player-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}

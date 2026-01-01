@@ -1,0 +1,16 @@
+[Unit]
+Description=gunicorn daemon for volleyball_site
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/volleyball_site
+EnvironmentFile=/etc/default/volleyball_site.env
+ExecStart=/home/ubuntu/volleyball_site/.venv/bin/gunicorn --access-logfile - --workers 3 --bind unix:/home/ubuntu/volleyball_site/gunicorn.sock volleyball_site.wsgi:application
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

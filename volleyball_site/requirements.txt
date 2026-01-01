@@ -1,0 +1,11 @@
+asgiref==3.11.0
+Django==5.2
+djangorestframework
+Pillow
+gunicorn==23.0.0
+packaging==25.0
+sqlparse==0.5.5
+whitenoise==6.11.0
+celery
+redis
+django-celery-beat

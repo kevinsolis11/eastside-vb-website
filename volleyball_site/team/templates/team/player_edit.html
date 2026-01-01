@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Player - {{ player.first_name }} {{ player.last_name }} - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">Edit Player Profile</h1>
+            <p class="text-muted">Update player information</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'team:player_stats_list' %}" class="btn btn-secondary">
+                <i class="bi bi-chevron-left"></i> Back to Stats
+            </a>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Player Information</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="needs-validation">
+                        {% csrf_token %}
+                        
+                        <!-- Name Section -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_first_name" class="form-label">
+                                    <i class="bi bi-person-fill"></i> First Name
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.first_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_last_name" class="form-label">
+                                    <i class="bi bi-person-fill"></i> Last Name
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.last_name.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Jersey Number and Position -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="id_number" class="form-label">
+                                    <i class="bi bi-shield-fill"></i> Jersey Number
+                                </label>
+                                {{ form.number }}
+                                {% if form.number.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.number.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted">Optional, must be 0-99</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="id_position" class="form-label">
+                                    <i class="bi bi-diagram-3"></i> Position
+                                </label>
+                                {{ form.position }}
+                                {% if form.position.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.position.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <small class="text-muted">e.g., Setter, Middle, Outside Hitter</small>
+                            </div>
+                        </div>
+
+                        <!-- Height -->
+                        <div class="mb-3">
+                            <label for="id_height" class="form-label">
+                                <i class="bi bi-arrow-up-down"></i> Height
+                            </label>
+                            {{ form.height }}
+                            {% if form.height.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.height.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <small class="text-muted">e.g., 5'10"</small>
+                        </div>
+
+                        <!-- Form Errors -->
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {% for error in form.non_field_errors %}
+                                    <p class="mb-0">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'team:player_stats_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Update Player
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Player Preview Card -->
+        <div class="col-lg-4">
+            <div class="card border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Preview</h5>
+                </div>
+                <div class="card-body text-center">
+                    <h4 class="card-title">
+                        {% if form.first_name.value %}
+                            {{ form.first_name.value }} {{ form.last_name.value }}
+                        {% else %}
+                            {{ player.first_name }} {{ player.last_name }}
+                        {% endif %}
+                    </h4>
+                    {% if form.number.value %}
+                        <p class="card-text">
+                            <span class="badge bg-primary">#{{ form.number.value }}</span>
+                        </p>
+                    {% endif %}
+                    {% if form.position.value %}
+                        <p class="card-text text-muted">
+                            <strong>{{ form.position.value }}</strong>
+                        </p>
+                    {% endif %}
+                    {% if form.height.value %}
+                        <p class="card-text">
+                            <small class="text-muted">Height: {{ form.height.value }}</small>
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Help Text -->
+            <div class="alert alert-info mt-3">
+                <h6 class="alert-heading">
+                    <i class="bi bi-info-circle"></i> Tips
+                </h6>
+                <ul class="mb-0 small">
+                    <li>All fields except name are optional</li>
+                    <li>Jersey number must be 0-99</li>
+                    <li>Position examples: Setter, Middle, Outside Hitter, Libero, Opposite</li>
+                    <li>Height format: e.g., 5'10" or 5-10</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 0.375rem;
+    }
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+{% endblock %}

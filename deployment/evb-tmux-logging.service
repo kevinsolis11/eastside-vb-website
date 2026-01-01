@@ -1,0 +1,16 @@
+[Unit]
+Description=Eastside VB tmux session (with pane logging)
+After=network.target
+
+[Service]
+Type=forking
+RemainAfterExit=yes
+EnvironmentFile=/etc/default/volleyball_site.env
+
+# The wrapper will read APP_ROOT from the env file and start tmux with logging
+ExecStart=/usr/bin/env bash -lc 'APP_ROOT="${APP_ROOT:-/opt/volleyball_site}"; cd "$APP_ROOT" && ./deployment/tmux_wrapper_logging.sh'
+ExecStop=/usr/bin/env bash -lc 'APP_ROOT="${APP_ROOT:-/opt/volleyball_site}"; TMUX_SESSION="${TMUX_SESSION:-evb}"; /usr/bin/tmux kill-session -t "$TMUX_SESSION" || true'
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Logged out - Eastside VB{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="text-center">
+            <h3 class="mb-3">You are logged out</h3>
+            <p class="mb-3">You have successfully logged out of Eastside VB. Redirecting to login...</p>
+            <p>
+                <a class="btn btn-primary me-2" href="/accounts/login/">Go to login now</a>
+                <a class="btn btn-outline-secondary" href="/">Return home</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Immediately redirect to the login page; fallback link above for no-JS or slow networks -->
+<meta http-equiv="refresh" content="1;url=/accounts/login/">
+<script>window.location.replace('/accounts/login/');</script>
+{% endblock %}
+
+{% block brand %}
+<span class="navbar-brand navbar-brand-static">Eastside VB</span>
+{% endblock %}

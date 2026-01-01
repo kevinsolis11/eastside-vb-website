@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Coach - Access Codes</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Generate</button>
+</form>
+
+{% if created %}
+  <h2>Created</h2>
+  <ul>
+  {% for c in created %}
+    <li>{{ c.code }} ({{ c.role }})</li>
+  {% endfor %}
+  </ul>
+{% endif %}
+
+<h2>Recent Codes</h2>
+<ul>
+{% for c in codes %}
+  <li>{{ c.code }} — {{ c.role }} — {{ c.is_used|yesno:"used,unused" }}</li>
+{% empty %}
+  <li>No codes yet</li>
+{% endfor %}
+</ul>
+{% endblock %}

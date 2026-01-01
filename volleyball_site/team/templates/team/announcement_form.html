@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Create Announcement - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h1 class="h2 mb-4">{% if announcement %}Edit{% else %}Create{% endif %} Announcement</h1>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-quote"></i> Title
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message -->
+                        <div class="mb-3">
+                            <label for="{{ form.message.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-dots"></i> Message
+                            </label>
+                            {{ form.message }}
+                            {% if form.message.errors %}
+                                <div class="text-danger small mt-1">{{ form.message.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Urgent -->
+                        <div class="mb-3 form-check">
+                            {{ form.is_urgent }}
+                            <label class="form-check-label" for="{{ form.is_urgent.id_for_label }}">
+                                <i class="bi bi-exclamation-circle"></i> Mark as urgent
+                            </label>
+                            {% if form.is_urgent.errors %}
+                                <div class="text-danger small mt-1">{{ form.is_urgent.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-light">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> {% if announcement %}Update{% else %}Post{% endif %} Announcement
+                        </button>
+                        <a href="{% url 'team:announcement_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

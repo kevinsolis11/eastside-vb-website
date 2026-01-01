@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Project-local debug shim for Django using debugpy.
+# Usage: ./debug [runserver-args]
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PYTHON="${PYTHON:-python3}"
+
+exec "$PYTHON" -m debugpy --listen 5678 --wait-for-client "$SCRIPT_DIR/volleyball_site/manage.py" runserver "$@"

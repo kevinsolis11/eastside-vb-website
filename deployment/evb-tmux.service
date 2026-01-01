@@ -1,0 +1,36 @@
+[Unit]
+Description=Eastside VB tmux session manager
+After=network.target
+
+[Service]
+# Load environment variables from /etc/default/volleyball_site.env
+EnvironmentFile=/etc/default/volleyball_site.env
+Type=forking
+RemainAfterExit=yes
+
+# Start a tmux session and create panes for web, worker and beat. Uses variables:
+# APP_ROOT - application root directory
+# TMUX_SESSION - name of tmux session (default: evb)
+# VENV_PATH - path to virtualenv (optional, falls back to .venv)
+ExecStart=/usr/bin/env bash -lc '\
+  APP_ROOT="${APP_ROOT:-/opt/volleyball_site}";\
+  TMUX_SESSION="${TMUX_SESSION:-evb}";\
+  VENV_PATH="${VENV_PATH:-$APP_ROOT/.venv}";\
+  cd "$APP_ROOT" || exit 1;\
+  /usr/bin/tmux has-session -t "$TMUX_SESSION" 2>/dev/null || {\
+    /usr/bin/tmux new-session -d -s "$TMUX_SESSION" -c "$APP_ROOT";\
+    /usr/bin/tmux send-keys -t "$TMUX_SESSION":0.0 "$VENV_PATH/bin/python volleyball_site/manage.py runserver 127.0.0.1:8000" C-m;\
+    /usr/bin/tmux split-window -h -t "$TMUX_SESSION" -c "$APP_ROOT";\
+    /usr/bin/tmux send-keys -t "$TMUX_SESSION":0.1 "$VENV_PATH/bin/celery -A volleyball_site worker --loglevel=info" C-m;\
+    /usr/bin/tmux select-pane -t "$TMUX_SESSION":0.0;\
+    /usr/bin/tmux split-window -v -t "$TMUX_SESSION":0.0 -c "$APP_ROOT";\
+    /usr/bin/tmux send-keys -t "$TMUX_SESSION":0.2 "$VENV_PATH/bin/celery -A volleyball_site beat --loglevel=info" C-m;\
+    /usr/bin/tmux select-layout -t "$TMUX_SESSION" tiled;\
+  }
+'
+
+ExecStop=/usr/bin/env bash -lc 'TMUX_SESSION="${TMUX_SESSION:-evb}"; /usr/bin/tmux kill-session -t "$TMUX_SESSION" || true'
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

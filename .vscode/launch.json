@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Attach (debugpy)",
+            "type": "python",
+            "request": "attach",
+            "preLaunchTask": "Start Debug Server",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "${workspaceFolder}/volleyball_site"
+                }
+            ],
+            "justMyCode": false
+        }
+    ]
+}

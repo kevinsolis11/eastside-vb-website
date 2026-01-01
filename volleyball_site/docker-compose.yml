@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app:rw
+    command: gunicorn volleyball_site.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    restart: unless-stopped
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  celery:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    command: celery -A volleyball_site worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app:rw
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    command: celery -A volleyball_site beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    volumes:
+      - .:/app:rw

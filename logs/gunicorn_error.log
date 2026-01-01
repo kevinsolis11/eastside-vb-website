@@ -1,0 +1,7 @@
+[2025-12-31 15:30:58 -0500] [90486] [INFO] Starting gunicorn 23.0.0
+[2025-12-31 15:30:58 -0500] [90486] [INFO] Listening at: http://0.0.0.0:8000 (90486)
+[2025-12-31 15:30:58 -0500] [90486] [INFO] Using worker: sync
+[2025-12-31 15:30:58 -0500] [90507] [INFO] Booting worker with pid: 90507
+[2025-12-31 15:30:58 -0500] [90508] [INFO] Booting worker with pid: 90508
+[2025-12-31 15:30:58 -0500] [90509] [INFO] Booting worker with pid: 90509
+[2025-12-31 15:30:58 -0500] [90510] [INFO] Booting worker with pid: 90510

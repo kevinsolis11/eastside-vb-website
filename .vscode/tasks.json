@@ -1,0 +1,27 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Debug Server",
+			"type": "shell",
+			"command": "${workspaceFolder}/scripts/debug.sh",
+			"env": {
+				"PYTHON": "${workspaceFolder}/.venv/bin/python"
+			},
+			"problemMatcher": [],
+			"isBackground": true,
+			"presentation": {
+				"panel": "dedicated",
+				"showReuseMessage": true,
+				"clear": false
+			}
+		},
+		{
+			"label": "Run Django Server",
+			"type": "shell",
+			"command": "cd volleyball_site && python manage.py runserver",
+			"isBackground": true,
+			"problemMatcher": []
+		}
+	]
+}

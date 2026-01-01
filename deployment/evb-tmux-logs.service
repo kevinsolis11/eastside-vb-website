@@ -1,0 +1,33 @@
+[Unit]
+Description=Eastside VB tmux session with log files
+After=network.target
+Documentation=https://tmux.github.io/
+
+[Service]
+# Load environment variables from /etc/default/volleyball_site.env
+EnvironmentFile=/etc/default/volleyball_site.env
+Type=forking
+RemainAfterExit=yes
+
+# Variables with fallbacks
+Environment="APP_ROOT=/opt/volleyball_site"
+Environment="TMUX_SESSION=evb"
+Environment="VENV_PATH=/opt/volleyball_site/.venv"
+Environment="LOG_DIR=/opt/volleyball_site/logs"
+
+# ExecStartPre: ensure log directory exists and has correct permissions
+ExecStartPre=/usr/bin/mkdir -p ${LOG_DIR}
+ExecStartPre=/usr/bin/chmod 755 ${LOG_DIR}
+
+# ExecStart: run the wrapper script
+ExecStart=/bin/sh /opt/volleyball_site/scripts/tmux_wrapper.sh
+
+# ExecStop: kill the tmux session
+ExecStop=/usr/bin/tmux kill-session -t ${TMUX_SESSION}
+
+TimeoutStopSec=20
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+<svg width="1242" height="2688" viewBox="0 0 1242 2688" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#007AFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0056CC;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="1242" height="2688" fill="url(#bgGradient)"/>
+  
+  <!-- Volleyball centered -->
+  <circle cx="621" cy="900" r="280" fill="#FFFFFF" opacity="0.95"/>
+  
+  <!-- Volleyball details -->
+  <line x1="621" y1="620" x2="621" y2="1180" stroke="#007AFF" stroke-width="12"/>
+  <line x1="341" y1="900" x2="901" y2="900" stroke="#007AFF" stroke-width="12"/>
+  
+  <!-- Curved lines -->
+  <path d="M 450 700 Q 621 760 792 700" fill="none" stroke="#007AFF" stroke-width="12"/>
+  <path d="M 450 1100 Q 621 1040 792 1100" fill="none" stroke="#007AFF" stroke-width="12"/>
+  <path d="M 380 820 Q 420 900 380 980" fill="none" stroke="#007AFF" stroke-width="12"/>
+  <path d="M 862 820 Q 822 900 862 980" fill="none" stroke="#007AFF" stroke-width="12"/>
+  
+  <!-- Main text -->
+  <text x="621" y="1550" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#FFFFFF" text-anchor="middle">EASTSIDE</text>
+  <text x="621" y="1700" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="#FFFFFF" text-anchor="middle">VOLLEYBALL</text>
+  
+  <!-- Tagline -->
+  <text x="621" y="1900" font-family="Arial, sans-serif" font-size="60" fill="#E8F4FF" text-anchor="middle">Team Management App</text>
+</svg>

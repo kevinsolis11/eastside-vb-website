@@ -1,0 +1,12 @@
+Hello,
+
+Here are the access code(s) you requested for Eastside VB:
+
+{% for code in codes %}
+- {{ code }}
+{% endfor %}
+
+Sign up at: {{ signup_url }}
+
+Thanks,
+Eastside VB team

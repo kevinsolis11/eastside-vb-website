@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-gear-fill"></i> Team Settings</h2>
+                <a href="{% url 'team:coach_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center bg-primary text-white">
+                <div class="card-body">
+                    <h3>{{ total_players }}</h3>
+                    <p class="mb-0">Total Players</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-success text-white">
+                <div class="card-body">
+                    <h3>{{ total_videos }}</h3>
+                    <p class="mb-0">Videos</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-info text-white">
+                <div class="card-body">
+                    <h3>{{ total_announcements }}</h3>
+                    <p class="mb-0">Announcements</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center bg-warning text-dark">
+                <div class="card-body">
+                    <h3>{{ active_codes }}</h3>
+                    <p class="mb-0">Active Codes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="row">
+        <!-- Player Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-people-fill"></i> Player Management</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/admin/team/player/add/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-plus"></i> Add New Player
+                    </a>
+                    <a href="/admin/team/player/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-pencil-square"></i> Edit Players
+                    </a>
+                    <a href="/admin/team/playerstats/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-graph-up"></i> Manage Player Stats
+                    </a>
+                    <a href="{% url 'team:player_list' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-list-ul"></i> View All Players
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Management -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-megaphone-fill"></i> Content Management</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'team:announcement_create' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-plus-circle"></i> Create Announcement
+                    </a>
+                    <a href="/admin/team/announcement/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-pencil"></i> Edit Announcements
+                    </a>
+                    <a href="{% url 'team:video_upload' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-upload"></i> Upload Video
+                    </a>
+                    <a href="/admin/team/gamevideo/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-camera-video"></i> Manage Videos
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Access Control -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-key-fill"></i> Access Control</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'team:coach_codes' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-plus-circle"></i> Generate Access Code
+                    </a>
+                    <a href="/admin/team/accesscode/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-list"></i> View All Codes
+                    </a>
+                    <a href="/admin/auth/user/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-badge"></i> Manage Users
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI & Analytics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-robot"></i> AI & Analytics</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="/admin/team/aisummary/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-chat-square-text"></i> Manage AI Summaries
+                    </a>
+                    <a href="/admin/team/videoanalysis/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-film"></i> Video Analyses
+                    </a>
+                    <a href="/admin/team/playerstats/" class="list-group-item list-group-item-action">
+                        <i class="bi bi-bar-chart"></i> Statistics Overview
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Players -->
+    {% if recent_players %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Recently Added Players</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Number</th>
+                                <th>Position</th>
+                                <th>Year</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for player in recent_players %}
+                            <tr>
+                                <td><strong>{{ player.first_name }} {{ player.last_name }}</strong></td>
+                                <td>#{{ player.number }}</td>
+                                <td>{{ player.playerprofile.position|default:"N/A" }}</td>
+                                <td>{{ player.playerprofile.year|default:"N/A" }}</td>
+                                <td>
+                                    <a href="{% url 'team:player_detail' player.pk %}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> View
+                                    </a>
+                                    <a href="/admin/team/player/{{ player.pk }}/change/" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- System Info -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-secondary">
+                <div class="card-body text-center">
+                    <p class="mb-0 text-muted">
+                        <i class="bi bi-info-circle"></i> 
+                        For advanced settings, visit the <a href="/admin/" target="_blank">Django Admin Panel</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

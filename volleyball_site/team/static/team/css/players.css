@@ -1,0 +1,49 @@
+/* Basic player list styles */
+.player-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 720px;
+}
+
+.player-item {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.player-number {
+  color: #555;
+  font-weight: 600;
+  min-width: 48px;
+}
+
+.player-position {
+  background: #f0f4ff;
+  color: #1a3a8a;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.player-name {
+  color: #0b61ff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.player-empty {
+  color: #777;
+  padding: 12px;
+}
+
+/* Styles for non-clickable brand used on auth pages */
+.navbar-brand-static {
+  cursor: default;
+  pointer-events: none;
+  color: #0b61ff; /* keep brand color consistent */
+  text-decoration: none;
+  font-weight: 600;
+}

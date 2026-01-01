@@ -1,0 +1,109 @@
+{
+  "expo": {
+    "name": "Eastside Volleyball",
+    "slug": "eastside-volleyball",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "description": "Official team management app for Eastside Volleyball. Access player profiles, game videos, team announcements, live stats, and stay connected with your team.",
+    "keywords": [
+      "volleyball",
+      "team",
+      "sports",
+      "stats",
+      "management",
+      "game videos"
+    ],
+    "category": "Sports",
+    "homepage": "https://eastsidevolleyball.com",
+    "privacy": "https://eastsidevolleyball.com/privacy",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "owner": "eastsidevolleyball",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#007AFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.eastsidevolleyball.app",
+      "buildNumber": "1",
+      "deploymentTarget": "13.0",
+      "icon": "./assets/icon.png",
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Connect to your team's local network",
+        "NSBonjourServiceTypes": [
+          "_http._tcp",
+          "_https._tcp"
+        ],
+        "NSPhotoLibraryUsageDescription": "Allow access to photos to share with team",
+        "NSCameraUsageDescription": "Allow camera access for video calls",
+        "NSMicrophoneUsageDescription": "Allow microphone access for video calls"
+      },
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#007AFF"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#007AFF",
+        "foregroundImage": "./assets/icon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.eastsidevolleyball.app",
+      "versionCode": 1,
+      "minSdkVersion": 21,
+      "targetSdkVersion": 34,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.INTERNET"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#007AFF"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "apiUrl": "http://127.0.0.1:8000/api",
+      "eas": {
+        "projectId": "eastside-volleyball-app"
+      }
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_APP_FOREGROUND",
+      "fallbackToCacheTimeout": 30000
+    },
+    "scheme": "eastsidevolleyball"
+  }
+}

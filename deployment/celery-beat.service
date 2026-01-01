@@ -1,0 +1,16 @@
+[Unit]
+Description=Celery Beat for volleyball_site
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/volleyball_site
+EnvironmentFile=/etc/default/volleyball_site.env
+ExecStart=/home/ubuntu/volleyball_site/.venv/bin/celery -A volleyball_site beat --loglevel=info
+Restart=always
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Stats - {{ player_name }} - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="display-5">Edit Stats</h1>
+            <p class="text-muted">Update statistics for {{ player_name }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'team:player_stats_list' %}" class="btn btn-secondary">
+                <i class="bi bi-chevron-left"></i> Back to Stats
+            </a>
+        </div>
+    </div>
+
+    <!-- Player Info Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h5 class="card-title">{{ player_name }}</h5>
+                    {% if player_profile.player %}
+                        {% if player_profile.player.number %}
+                            <p class="card-text text-muted">
+                                <i class="bi bi-shirt"></i> #{{ player_profile.player.number }}
+                                {% if player_profile.player.position %}
+                                    • {{ player_profile.player.position }}
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                        {% if player_profile.height %}
+                            <p class="card-text text-muted">
+                                <i class="bi bi-person"></i> Height: {{ player_profile.height }}
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-end">
+                    {% if stats %}
+                        <small class="text-muted d-block">
+                            Last updated: {{ stats.updated_at|date:"M d, Y g:i A" }}
+                        </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Stats Display -->
+    {% if stats %}
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card border-primary">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Kills</h6>
+                        <h3 class="text-primary">{{ stats.kills }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-info">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Blocks</h6>
+                        <h3 class="text-info">{{ stats.blocks }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Aces</h6>
+                        <h3 class="text-success">{{ stats.aces }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-warning">
+                    <div class="card-body text-center">
+                        <h6 class="card-title text-muted">Digs</h6>
+                        <h3 class="text-warning">{{ stats.digs }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Edit Form -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Update Stats</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Form Errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <!-- Kills Field -->
+                <div class="mb-3">
+                    <label for="{{ form.kills.id_for_label }}" class="form-label">
+                        <i class="bi bi-lightning-fill text-primary"></i> Kills
+                        <small class="text-muted">(attacking points)</small>
+                    </label>
+                    {{ form.kills }}
+                    {% if form.kills.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.kills.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Blocks Field -->
+                <div class="mb-3">
+                    <label for="{{ form.blocks.id_for_label }}" class="form-label">
+                        <i class="bi bi-shield-fill text-info"></i> Blocks
+                        <small class="text-muted">(defensive blocks)</small>
+                    </label>
+                    {{ form.blocks }}
+                    {% if form.blocks.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.blocks.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Aces Field -->
+                <div class="mb-3">
+                    <label for="{{ form.aces.id_for_label }}" class="form-label">
+                        <i class="bi bi-star-fill text-success"></i> Aces
+                        <small class="text-muted">(serving points)</small>
+                    </label>
+                    {{ form.aces }}
+                    {% if form.aces.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.aces.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Digs Field -->
+                <div class="mb-3">
+                    <label for="{{ form.digs.id_for_label }}" class="form-label">
+                        <i class="bi bi-hand-thumbs-up-fill text-warning"></i> Digs
+                        <small class="text-muted">(successful passes)</small>
+                    </label>
+                    {{ form.digs }}
+                    {% if form.digs.errors %}
+                        <div class="invalid-feedback d-block">
+                            {{ form.digs.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{% url 'team:player_stats_list' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Update Stats
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="alert alert-info mt-4">
+        <h6 class="alert-heading">
+            <i class="bi bi-lightbulb"></i> Stats Definitions
+        </h6>
+        <ul class="mb-0">
+            <li><strong>Kills:</strong> Successful attacks that win the point</li>
+            <li><strong>Blocks:</strong> Successful blocks that send the ball back to opponent</li>
+            <li><strong>Aces:</strong> Serves that are not returnable or directly win points</li>
+            <li><strong>Digs:</strong> Successful defensive passes to keep the ball in play</li>
+        </ul>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        font-size: 1.1rem;
+        padding: 0.75rem;
+        height: auto;
+    }
+</style>
+{% endblock %}

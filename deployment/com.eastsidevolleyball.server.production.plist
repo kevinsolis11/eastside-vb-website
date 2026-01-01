@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.eastsidevolleyball.server.production</string>
+    
+    <key>Program</key>
+    <string>/Users/klaysolis/eastside vb website/scripts/production_server.sh</string>
+    
+    <key>WorkingDirectory</key>
+    <string>/Users/klaysolis/eastside vb website</string>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <dict>
+        <!-- Restart if process exits, even with exit code 0 -->
+        <key>SuccessfulExit</key>
+        <false/>
+        <!-- Restart if process crashes -->
+        <key>Crashed</key>
+        <true/>
+    </dict>
+    
+    <!-- Restart policy: wait 10 seconds before restarting -->
+    <key>ThrottleInterval</key>
+    <integer>10</integer>
+    
+    <!-- Log output -->
+    <key>StandardOutPath</key>
+    <string>/Users/klaysolis/eastside vb website/logs/launchd.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/Users/klaysolis/eastside vb website/logs/launchd.error.log</string>
+    
+    <!-- Environment variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/Users/klaysolis/eastside vb website/.venv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>DJANGO_SETTINGS_MODULE</key>
+        <string>volleyball_site.settings</string>
+        <key>PYTHONUNBUFFERED</key>
+        <string>1</string>
+    </dict>
+    
+    <!-- Set resource limits -->
+    <key>SoftResourceLimits</key>
+    <dict>
+        <key>NumberOfOpenFiles</key>
+        <integer>65536</integer>
+    </dict>
+    
+    <key>HardResourceLimits</key>
+    <dict>
+        <key>NumberOfOpenFiles</key>
+        <integer>65536</integer>
+    </dict>
+</dict>
+</plist>

@@ -1,0 +1,23 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#007AFF"/>
+  
+  <!-- Volleyball -->
+  <circle cx="512" cy="400" r="180" fill="#FFFFFF"/>
+  
+  <!-- Volleyball lines -->
+  <line x1="512" y1="220" x2="512" y2="580" stroke="#007AFF" stroke-width="8"/>
+  <line x1="332" y1="400" x2="692" y2="400" stroke="#007AFF" stroke-width="8"/>
+  
+  <!-- Curved lines -->
+  <path d="M 400 280 Q 512 320 624 280" fill="none" stroke="#007AFF" stroke-width="8"/>
+  <path d="M 400 520 Q 512 480 624 520" fill="none" stroke="#007AFF" stroke-width="8"/>
+  <path d="M 350 350 Q 380 400 350 450" fill="none" stroke="#007AFF" stroke-width="8"/>
+  <path d="M 674 350 Q 644 400 674 450" fill="none" stroke="#007AFF" stroke-width="8"/>
+  
+  <!-- Text below -->
+  <text x="512" y="750" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#FFFFFF" text-anchor="middle">EASTSIDE VB</text>
+  
+  <!-- Decorative line -->
+  <line x1="300" y1="850" x2="724" y2="850" stroke="#FFFFFF" stroke-width="6"/>
+</svg>

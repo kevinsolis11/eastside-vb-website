@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Generate AI Summary - {{ player_profile }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Generate AI Performance Summary</h2>
+            <p class="text-muted">Player: <strong>{{ player_profile }}</strong></p>
+            
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="{{ form.game_context.id_for_label }}">{{ form.game_context.label }}</label>
+                    {{ form.game_context }}
+                    {% if form.game_context.help_text %}
+                        <small class="form-text text-muted d-block mt-1">{{ form.game_context.help_text|safe }}</small>
+                    {% endif %}
+                    {% if form.game_context.errors %}
+                        <div class="alert alert-danger mt-2">
+                            {{ form.game_context.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">Generate Summary</button>
+                    <a href="{% url 'team:player-detail' player_profile.player.id %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+            
+            {% if messages %}
+                <div class="mt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

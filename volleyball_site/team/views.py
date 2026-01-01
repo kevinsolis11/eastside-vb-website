@@ -7,10 +7,12 @@ from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
 from django.conf import settings
 from django.utils import timezone
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, StreamingHttpResponse
 from datetime import timedelta
 from . import tasks
 from .tasks import send_invite_mail_sync
+import mimetypes
+import os
 
 from .models import Player, AccessCode, PlayerProfile, GameVideo, PlayerStats, AISummary, VideoAnalysis
 from .forms import SignUpForm, GameVideoUploadForm, PlayerStatsForm, AISummaryForm, AnnouncementForm
@@ -281,10 +283,6 @@ def video_detail(request, pk):
 @login_required
 def video_stream(request, pk):
     """Stream video with HTTP range request support for faster seeking."""
-    from django.http import StreamingHttpResponse
-    import mimetypes
-    import os
-    
     video = get_object_or_404(GameVideo, pk=pk)
     
     # Check access
@@ -294,6 +292,7 @@ def video_stream(request, pk):
     if not video.video:
         raise Http404("Video file not found.")
     
+    # Get file path
     try:
         file_path = video.video.path
     except AttributeError:
@@ -306,7 +305,7 @@ def video_stream(request, pk):
     mime_type, _ = mimetypes.guess_type(file_path)
     mime_type = mime_type or 'video/mp4'
     
-    # Handle range requests
+    # Handle range requests for seeking
     range_header = request.META.get('HTTP_RANGE', '')
     
     if range_header.startswith('bytes='):
@@ -339,7 +338,6 @@ def video_stream(request, pk):
             response['Content-Length'] = end - start + 1
             response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
             response['Accept-Ranges'] = 'bytes'
-            response['Content-Disposition'] = f'inline; filename="{video.title}.mp4"'
             return response
         except (ValueError, IndexError):
             pass
@@ -356,7 +354,6 @@ def video_stream(request, pk):
     response = StreamingHttpResponse(file_iterator(file_path), content_type=mime_type)
     response['Content-Length'] = file_size
     response['Accept-Ranges'] = 'bytes'
-    response['Content-Disposition'] = f'inline; filename="{video.title}.mp4"'
     return response
 
 

@@ -19,19 +19,10 @@
             <!-- Video Player -->
             <div class="video-player mb-4">
                 {% if video.video %}
-                    <div style="background: #000; border-radius: 8px; padding: 40px; text-align: center;">
-                        <div class="alert alert-info mb-3">
-                            <strong>📥 Download Video</strong><br>
-                            <small>This video format requires download to play. Click below:</small>
-                        </div>
-                        <a href="{{ video.video.url }}" class="btn btn-primary btn-lg" download>
-                            <i class="bi bi-download"></i> Download Video ({{ video.file_size_mb|floatformat:1 }} MB)
-                        </a>
-                        <hr class="my-3">
-                        <div class="alert alert-secondary">
-                            <small><strong>Or play in browser:</strong> Right-click the download link and select "Open in new tab"</small>
-                        </div>
-                    </div>
+                    <video width="100%" height="600" controls style="background: #000; border-radius: 8px; max-width: 100%;">
+                        <source src="{{ video.video.url }}" type="{{ video_mime_type }}">
+                        Your browser does not support the video tag. <a href="{{ video.video.url }}" download>Download video instead</a>
+                    </video>
                 {% else %}
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i> No video file has been uploaded yet.

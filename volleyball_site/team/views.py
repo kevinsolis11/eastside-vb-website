@@ -270,10 +270,24 @@ def video_detail(request, pk):
         video.save(update_fields=['view_count'])
         request.session['view_count_incremented'] = True
     
+    # Detect video format
+    video_url = video.video.url.lower()
+    if video_url.endswith('.mov'):
+        video_mime_type = 'video/quicktime'
+    elif video_url.endswith('.mkv'):
+        video_mime_type = 'video/x-matroska'
+    elif video_url.endswith('.webm'):
+        video_mime_type = 'video/webm'
+    elif video_url.endswith('.avi'):
+        video_mime_type = 'video/x-msvideo'
+    else:
+        video_mime_type = 'video/mp4'
+    
     context = {
         'video': video,
         'is_coach': is_coach(request.user),
         'is_uploader': video.uploaded_by == request.user or is_coach(request.user),
+        'video_mime_type': video_mime_type,
     }
     return render(request, 'team/video_detail.html', context)
 

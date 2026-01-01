@@ -11,7 +11,6 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from datetime import timedelta
 from . import tasks
 from .tasks import send_invite_mail_sync
-import mimetypes
 import os
 
 from .models import Player, AccessCode, PlayerProfile, GameVideo, PlayerStats, AISummary, VideoAnalysis
@@ -282,7 +281,7 @@ def video_detail(request, pk):
 
 @login_required
 def video_stream(request, pk):
-    """Stream video with HTTP range request support for faster seeking."""
+    """Stream video file."""
     video = get_object_or_404(GameVideo, pk=pk)
     
     # Check access
@@ -302,56 +301,14 @@ def video_stream(request, pk):
         raise Http404("Video file not found on disk.")
     
     file_size = os.path.getsize(file_path)
-    mime_type, _ = mimetypes.guess_type(file_path)
-    mime_type = mime_type or 'video/mp4'
     
-    # Handle range requests for seeking
-    range_header = request.META.get('HTTP_RANGE', '')
-    
-    if range_header.startswith('bytes='):
-        try:
-            range_value = range_header.split('=')[1]
-            parts = range_value.split('-')
-            start = int(parts[0]) if parts[0] else 0
-            end = int(parts[1]) if parts[1] else file_size - 1
-            
-            if start < 0 or end >= file_size or start > end:
-                start, end = 0, file_size - 1
-            
-            def file_iterator_range(file_path, start, end, chunk_size=8192):
-                with open(file_path, 'rb') as f:
-                    f.seek(start)
-                    bytes_remaining = end - start + 1
-                    while bytes_remaining > 0:
-                        read_size = min(chunk_size, bytes_remaining)
-                        chunk = f.read(read_size)
-                        if not chunk:
-                            break
-                        yield chunk
-                        bytes_remaining -= len(chunk)
-            
-            response = StreamingHttpResponse(
-                file_iterator_range(file_path, start, end),
-                status=206,
-                content_type=mime_type
-            )
-            response['Content-Length'] = end - start + 1
-            response['Content-Range'] = f'bytes {start}-{end}/{file_size}'
-            response['Accept-Ranges'] = 'bytes'
-            return response
-        except (ValueError, IndexError):
-            pass
-    
-    # Regular full file response
-    def file_iterator_full(file_path, chunk_size=8192):
+    # Stream file in chunks
+    def file_iterator(file_path):
         with open(file_path, 'rb') as f:
-            while True:
-                chunk = f.read(chunk_size)
-                if not chunk:
-                    break
+            for chunk in iter(lambda: f.read(8192), b''):
                 yield chunk
     
-    response = StreamingHttpResponse(file_iterator_full(file_path), content_type=mime_type)
+    response = StreamingHttpResponse(file_iterator(file_path), content_type='video/mp4')
     response['Content-Length'] = file_size
     response['Accept-Ranges'] = 'bytes'
     return response

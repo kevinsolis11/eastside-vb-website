@@ -6,12 +6,12 @@
 {% block content %}
 <div class="container mt-5 mb-5">
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
     {% endif %}
 
     <div class="row">
@@ -19,14 +19,14 @@
             <!-- Video Player -->
             <div class="video-player mb-4">
                 {% if video.video %}
-                    <video width="100%" height="auto" controls style="background: #000; border-radius: 8px;">
-                        <source src="{% url 'team:video_stream' video.pk %}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
+                <video width="100%" height="auto" controls style="background: #000; border-radius: 8px;">
+                    <source src="{{ video.video.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
                 {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No video file has been uploaded yet.
-                    </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No video file has been uploaded yet.
+                </div>
                 {% endif %}
             </div>
 
@@ -34,17 +34,17 @@
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
                     <h1 class="card-title">{{ video.title }}</h1>
-                    
+
                     <div class="row text-muted small mb-3">
                         {% if video.game_date %}
-                            <div class="col-md-4">
-                                <i class="bi bi-calendar"></i> <strong>Date:</strong> {{ video.game_date|date:"F d, Y" }}
-                            </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-calendar"></i> <strong>Date:</strong> {{ video.game_date|date:"F d, Y" }}
+                        </div>
                         {% endif %}
                         {% if video.opponent %}
-                            <div class="col-md-4">
-                                <i class="bi bi-people"></i> <strong>Opponent:</strong> {{ video.opponent }}
-                            </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-people"></i> <strong>Opponent:</strong> {{ video.opponent }}
+                        </div>
                         {% endif %}
                         <div class="col-md-4">
                             <i class="bi bi-eye"></i> <strong>Views:</strong> {{ video.view_count }}
@@ -54,25 +54,26 @@
                     <div class="mb-3">
                         <span class="badge bg-primary">{{ video.get_game_type_display }}</span>
                         {% if video.is_featured %}
-                            <span class="badge bg-warning">⭐ Featured</span>
+                        <span class="badge bg-warning">⭐ Featured</span>
                         {% endif %}
                     </div>
 
                     {% if video.description %}
-                        <div class="mb-3">
-                            <h5>Description</h5>
-                            <p class="card-text">{{ video.description|linebreaks }}</p>
-                        </div>
+                    <div class="mb-3">
+                        <h5>Description</h5>
+                        <p class="card-text">{{ video.description|linebreaks }}</p>
+                    </div>
                     {% endif %}
 
                     <hr>
 
                     <div class="small text-muted">
                         <p>
-                            <strong>Uploaded by:</strong> {{ video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
-                            <br/>
+                            <strong>Uploaded by:</strong> {{
+                            video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
+                            <br />
                             <strong>Uploaded:</strong> {{ video.uploaded_at|date:"F d, Y \a\t H:i" }}
-                            <br/>
+                            <br />
                             <strong>File Size:</strong> {{ video.file_size_mb|floatformat:1 }} MB
                         </p>
                     </div>
@@ -80,14 +81,14 @@
             </div>
 
             {% if is_coach or is_uploader %}
-                <div class="d-flex gap-2 mb-4">
-                    <a href="{% url 'team:video_edit' video.pk %}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Edit
-                    </a>
-                    <a href="{% url 'team:video_delete' video.pk %}" class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i> Delete
-                    </a>
-                </div>
+            <div class="d-flex gap-2 mb-4">
+                <a href="{% url 'team:video_edit' video.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                </a>
+                <a href="{% url 'team:video_delete' video.pk %}" class="btn btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                </a>
+            </div>
             {% endif %}
 
             <a href="{% url 'team:video_list' %}" class="btn btn-secondary">
@@ -111,16 +112,16 @@
             </div>
 
             {% if is_coach %}
-                <div class="card shadow-sm">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">🔧 Coach Actions</h5>
-                    </div>
-                    <div class="card-body">
-                        <a href="{% url 'team:video_upload' %}" class="btn btn-primary btn-sm w-100 mb-2">
-                            <i class="bi bi-plus"></i> Upload New Video
-                        </a>
-                    </div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">🔧 Coach Actions</h5>
                 </div>
+                <div class="card-body">
+                    <a href="{% url 'team:video_upload' %}" class="btn btn-primary btn-sm w-100 mb-2">
+                        <i class="bi bi-plus"></i> Upload New Video
+                    </a>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>

@@ -11,7 +11,6 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from datetime import timedelta
 from . import tasks
 from .tasks import send_invite_mail_sync
-import os
 
 from .models import Player, AccessCode, PlayerProfile, GameVideo, PlayerStats, AISummary, VideoAnalysis
 from .forms import SignUpForm, GameVideoUploadForm, PlayerStatsForm, AISummaryForm, AnnouncementForm
@@ -277,41 +276,6 @@ def video_detail(request, pk):
         'is_uploader': video.uploaded_by == request.user or is_coach(request.user),
     }
     return render(request, 'team/video_detail.html', context)
-
-
-@login_required
-def video_stream(request, pk):
-    """Stream video file."""
-    video = get_object_or_404(GameVideo, pk=pk)
-    
-    # Check access
-    if not video.can_view(request.user):
-        raise Http404("Video not found or you don't have permission to view it.")
-    
-    if not video.video:
-        raise Http404("Video file not found.")
-    
-    # Get file path
-    try:
-        file_path = video.video.path
-    except AttributeError:
-        file_path = os.path.join(settings.MEDIA_ROOT, str(video.video))
-    
-    if not os.path.exists(file_path):
-        raise Http404("Video file not found on disk.")
-    
-    file_size = os.path.getsize(file_path)
-    
-    # Stream file in chunks
-    def file_iterator(file_path):
-        with open(file_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(8192), b''):
-                yield chunk
-    
-    response = StreamingHttpResponse(file_iterator(file_path), content_type='video/mp4')
-    response['Content-Length'] = file_size
-    response['Accept-Ranges'] = 'bytes'
-    return response
 
 
 @login_required

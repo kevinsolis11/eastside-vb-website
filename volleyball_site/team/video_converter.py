@@ -29,16 +29,16 @@ def convert_to_mp4(input_path: str, output_path: str) -> bool:
         
         # Run ffmpeg conversion
         # -c:v libx264: H.264 video codec (most compatible)
-        # -preset fast: faster encoding (still good quality)
-        # -crf 23: quality level (lower = better, 23 is good balance)
+        # -preset superfast: faster encoding (5-10 seconds, good quality balance)
+        # -crf 24: quality level (lower = better, 24 is good balance for speed)
         # -c:a aac: AAC audio codec (widely supported)
         # -b:a 128k: audio bitrate
         cmd = [
             'ffmpeg',
             '-i', input_path,
             '-c:v', 'libx264',
-            '-preset', 'fast',
-            '-crf', '23',
+            '-preset', 'superfast',
+            '-crf', '24',
             '-c:a', 'aac',
             '-b:a', '128k',
             '-y',  # Overwrite output file

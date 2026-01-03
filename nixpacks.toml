@@ -1,8 +1,5 @@
 # Railway/NIXPACKS configuration
-# This file tells Railway which system packages to install
+# Installs ffmpeg for video conversion
 
-{ pkgs }:
-with pkgs; [
-  ffmpeg          # Video conversion library (required for MP4 conversion)
-  python314       # Python 3.14 (already installed by default via NIXPACKS)
-]
+[nixpkgs]
+packages = ["ffmpeg"]

@@ -148,16 +148,4 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
             log.save()
         except VideoConversionLog.DoesNotExist:
             pass
-                pass
-    else:
-        logger.warning(f"⚠️ Celery not available - video {instance.id} will not be converted")
-        try:
-            log = VideoConversionLog.objects.get(video=instance)
-            log.status = VideoConversionLog.STATUS_FAILED
-            log.error_message = "Celery task queue not available"
-            log.debug_log += f"\n⚠️ WARNING: Celery is not available on this server\n"
-            log.completed_at = timezone.now()
-            log.save()
-        except VideoConversionLog.DoesNotExist:
-            pass
 

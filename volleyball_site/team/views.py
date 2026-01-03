@@ -11,11 +11,15 @@ from django.http import Http404, HttpResponse, StreamingHttpResponse
 from datetime import timedelta
 from . import tasks
 from .tasks import send_invite_mail_sync
+import logging
+import os
 
-from .models import Player, AccessCode, PlayerProfile, GameVideo, PlayerStats, AISummary, VideoAnalysis
+from .models import Player, AccessCode, PlayerProfile, GameVideo, PlayerStats, AISummary, VideoAnalysis, VideoConversionLog
 from .forms import SignUpForm, GameVideoUploadForm, PlayerStatsForm, AISummaryForm, AnnouncementForm
 from django.contrib.auth import logout as auth_logout
 from django.shortcuts import resolve_url
+
+logger = logging.getLogger(__name__)
 
 
 class PlayerListView(ListView):
@@ -249,12 +253,35 @@ def video_upload(request):
                 video.file_size_mb = video.video.size / (1024 * 1024)
             
             video.save()
-            messages.success(request, f'Video "{video.title}" uploaded successfully!')
+            
+            # Create conversion log immediately
+            filename = os.path.basename(video.video.name)
+            file_ext = os.path.splitext(filename)[1].lstrip('.').upper() or 'UNKNOWN'
+            
+            conversion_log = VideoConversionLog.objects.create(
+                video=video,
+                original_filename=filename,
+                original_format=file_ext,
+                original_size_mb=video.file_size_mb,
+                debug_log=f"📹 Video uploaded by {request.user.username}\n"
+                          f"Filename: {filename}\n"
+                          f"Format: {file_ext}\n"
+                          f"Size: {video.file_size_mb:.1f} MB\n"
+                          f"Timestamp: {timezone.now().isoformat()}\n"
+            )
+            
+            logger.info(
+                f"✅ Video uploaded: {video.title} (ID: {video.id}) "
+                f"by {request.user.username} | File: {filename} | Size: {video.file_size_mb:.1f} MB"
+            )
+            
+            messages.success(request, f'✅ Video "{video.title}" uploaded successfully! Processing will begin shortly.')
             return redirect('team:video_list')
     else:
         form = GameVideoUploadForm()
     
     return render(request, 'team/video_upload.html', {'form': form})
+
 
 
 @login_required

@@ -45,6 +45,21 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ video.title }}</h5>
                                 
+                                <!-- Conversion Status Badge -->
+                                {% if video.conversion_log %}
+                                    {% with log=video.conversion_log %}
+                                        {% if log.status == 'processing' %}
+                                            <p class="mb-2"><span class="badge bg-warning animate-pulse">🔄 Converting...</span></p>
+                                        {% elif log.status == 'failed' %}
+                                            <p class="mb-2"><span class="badge bg-danger">❌ Conversion Failed</span></p>
+                                        {% elif log.status == 'success' %}
+                                            <p class="mb-2"><span class="badge bg-success">✅ Ready</span></p>
+                                        {% elif log.status == 'skipped' %}
+                                            <p class="mb-2"><span class="badge bg-info">ℹ️ MP4</span></p>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                                
                                 {% if video.game_date %}
                                     <p class="card-text text-muted small">
                                         <i class="bi bi-calendar"></i> {{ video.game_date|date:"M d, Y" }}
@@ -97,6 +112,13 @@
     .video-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    .animate-pulse {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 </style>
 {% endblock %}

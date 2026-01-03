@@ -195,3 +195,47 @@ class Announcement(models.Model):
     
     def __str__(self) -> str:
         return f"{self.title} by {self.coach.username}"
+
+class VideoConversionLog(models.Model):
+    """Track video conversion progress, status, and errors for debugging."""
+    STATUS_PENDING = 'pending'
+    STATUS_PROCESSING = 'processing'
+    STATUS_SUCCESS = 'success'
+    STATUS_FAILED = 'failed'
+    STATUS_SKIPPED = 'skipped'
+    
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending Conversion'),
+        (STATUS_PROCESSING, 'Converting...'),
+        (STATUS_SUCCESS, 'Converted Successfully'),
+        (STATUS_FAILED, 'Conversion Failed'),
+        (STATUS_SKIPPED, 'Skipped (Already MP4)'),
+    ]
+    
+    video = models.OneToOneField(GameVideo, on_delete=models.CASCADE, related_name='conversion_log')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    original_filename = models.CharField(max_length=255)
+    original_format = models.CharField(max_length=10, blank=True)  # e.g. 'MOV', 'MKV'
+    original_size_mb = models.FloatField(default=0, help_text="Original file size in MB")
+    converted_size_mb = models.FloatField(default=0, help_text="Converted MP4 size in MB (if applicable)")
+    celery_task_id = models.CharField(max_length=255, blank=True, null=True, help_text="Celery task UUID")
+    error_message = models.TextField(blank=True, help_text="Error details if conversion failed")
+    debug_log = models.TextField(blank=True, help_text="Detailed debug output from ffmpeg and system")
+    started_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Video Conversion Log"
+        verbose_name_plural = "Video Conversion Logs"
+    
+    def __str__(self) -> str:
+        return f"{self.video.title} - {self.get_status_display()}"
+    
+    def is_error(self) -> bool:
+        return self.status == self.STATUS_FAILED
+    
+    def is_complete(self) -> bool:
+        return self.status in [self.STATUS_SUCCESS, self.STATUS_FAILED, self.STATUS_SKIPPED]

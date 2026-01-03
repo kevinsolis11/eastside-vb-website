@@ -97,7 +97,7 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
         try:
             log = VideoConversionLog.objects.get(video=instance)
             log.status = VideoConversionLog.STATUS_PROCESSING
-            log.debug_log += f"\n🔄 Starting synchronous conversion (Celery unavailable)\nStartTime: {timezone.now().isoformat()}\n"
+            log.debug_log += f"\n🔄 Starting synchronous conversion (Celery unavailable)\nStartTime: {timezone.now().isoformat()}\nInput: {original_file_path}\nOutput: {output_file_path}\n"
             log.started_at = timezone.now()
             log.save()
         except VideoConversionLog.DoesNotExist:
@@ -105,32 +105,57 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
         
         # Do synchronous conversion
         from team.video_converter import convert_to_mp4
+        logger.info(f"🔄 About to convert {original_file_path} to {output_file_path}")
+        
         if convert_to_mp4(original_file_path, output_file_path):
-            # Update video file path
-            instance.video.name = relative_path
-            instance.save(update_fields=['video', 'updated_at'])
+            logger.info(f"✅ Conversion completed, now updating database for video {instance.id}")
             
-            logger.info(f"✅ Video {instance.id} successfully converted synchronously")
-            
-            # Update conversion log
-            try:
-                log = VideoConversionLog.objects.get(video=instance)
-                log.status = VideoConversionLog.STATUS_SUCCESS
-                log.converted_size_mb = os.path.getsize(output_file_path) / (1024 * 1024)
-                log.debug_log += f"✅ Synchronous conversion completed\nOutput file: {mp4_filename}\nConverted size: {log.converted_size_mb:.1f} MB\nCompleted: {timezone.now().isoformat()}\n"
-                log.completed_at = timezone.now()
-                log.save()
-            except VideoConversionLog.DoesNotExist:
-                pass
+            # Verify output file exists and has content
+            if os.path.exists(output_file_path):
+                file_size = os.path.getsize(output_file_path)
+                logger.info(f"✅ Output file exists: {output_file_path} (size: {file_size} bytes)")
+                
+                # Update video file path in database
+                instance.video.name = relative_path
+                instance.save(update_fields=['video', 'updated_at'])
+                
+                logger.info(f"✅ Video {instance.id} successfully converted and saved to database")
+                logger.info(f"✅ New video path: {instance.video.name}")
+                logger.info(f"✅ New video URL: {instance.video.url}")
+                
+                # Update conversion log
+                try:
+                    log = VideoConversionLog.objects.get(video=instance)
+                    log.status = VideoConversionLog.STATUS_SUCCESS
+                    log.converted_size_mb = file_size / (1024 * 1024)
+                    log.debug_log += f"✅ Synchronous conversion completed\nOutput file: {mp4_filename}\nConverted size: {log.converted_size_mb:.1f} MB\nFile exists: Yes\nCompleted: {timezone.now().isoformat()}\n"
+                    log.completed_at = timezone.now()
+                    log.save()
+                    logger.info(f"✅ Conversion log updated")
+                except VideoConversionLog.DoesNotExist:
+                    pass
+            else:
+                error_msg = f"Output file not created: {output_file_path}"
+                logger.error(f"❌ {error_msg}")
+                
+                try:
+                    log = VideoConversionLog.objects.get(video=instance)
+                    log.status = VideoConversionLog.STATUS_FAILED
+                    log.error_message = error_msg
+                    log.debug_log += f"\n❌ ERROR: {error_msg}\nCompleted: {timezone.now().isoformat()}\n"
+                    log.completed_at = timezone.now()
+                    log.save()
+                except VideoConversionLog.DoesNotExist:
+                    pass
         else:
-            error_msg = "FFmpeg conversion failed"
+            error_msg = "FFmpeg conversion failed or returned False"
             logger.error(f"❌ {error_msg} for video {instance.id}")
             
             try:
                 log = VideoConversionLog.objects.get(video=instance)
                 log.status = VideoConversionLog.STATUS_FAILED
                 log.error_message = error_msg
-                log.debug_log += f"\n❌ ERROR: {error_msg}\nCompleted: {timezone.now().isoformat()}\n"
+                log.debug_log += f"\n❌ ERROR: {error_msg}\nInput: {original_file_path}\nOutput: {output_file_path}\nCompleted: {timezone.now().isoformat()}\n"
                 log.completed_at = timezone.now()
                 log.save()
             except VideoConversionLog.DoesNotExist:

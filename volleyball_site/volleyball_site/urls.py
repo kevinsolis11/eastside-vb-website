@@ -26,6 +26,6 @@ urlpatterns = [
     path('', include('team.urls')),
 ]
 
-# Serve media files in development and production
-if settings.DEBUG or not settings.DEBUG:  # Always serve media files
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files in development
+# In production, gunicorn/whitenoise will serve them, but we keep this as fallback
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

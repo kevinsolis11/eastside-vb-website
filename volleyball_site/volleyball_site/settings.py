@@ -209,6 +209,15 @@ if 'whitenoise.middleware.WhiteNoiseMiddleware' not in globals().get('MIDDLEWARE
     except Exception:
         pass
 
+# Configure WhiteNoise to also serve media files on production
+# This is needed because Django doesn't serve media files in production by default
+try:
+    from whitenoise.middleware import WhiteNoiseMiddleware
+    # Tell WhiteNoise it's safe to serve media files from /media/ directory
+    WHITENOISE_AUTOREFRESH = True
+except ImportError:
+    pass
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 LOGOUT_REDIRECT_URL = '/accounts/login/'

@@ -23,9 +23,8 @@ except ImportError:
 @receiver(post_save, sender=GameVideo)
 def convert_video_on_upload(sender, instance, created, **kwargs):
     """
-    Signal handler: Queue video conversion to MP4 after upload if needed.
-    Uses Celery for reliable background task processing.
-    Falls back gracefully if Celery is not available.
+    Signal handler: Convert video to MP4 after upload if needed.
+    Tries Celery first (async), falls back to synchronous conversion.
     """
     if not created:
         return  # Only convert on initial upload, not on updates
@@ -66,8 +65,8 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
     else:
         relative_path = os.path.relpath(output_file_path, str(media_root))
     
+    # Try async conversion via Celery first
     if CELERY_AVAILABLE:
-        # Queue Celery task for conversion (non-blocking, persistent)
         try:
             task = convert_video_task.delay(
                 video_id=instance.id,
@@ -86,18 +85,69 @@ def convert_video_on_upload(sender, instance, created, **kwargs):
                 log.save()
             except VideoConversionLog.DoesNotExist:
                 pass
+            return
             
         except Exception as e:
-            logger.error(f"❌ Failed to queue Celery task for video {instance.id}: {str(e)}")
-            # Update conversion log with error
+            logger.warning(f"⚠️ Celery not available, falling back to synchronous conversion: {str(e)}")
+    
+    # Fallback: Convert synchronously (blocks request, but ensures videos work)
+    logger.info(f"🔄 Converting video {instance.id} synchronously (Celery unavailable)")
+    try:
+        # Update log to show conversion starting
+        try:
+            log = VideoConversionLog.objects.get(video=instance)
+            log.status = VideoConversionLog.STATUS_PROCESSING
+            log.debug_log += f"\n🔄 Starting synchronous conversion (Celery unavailable)\nStartTime: {timezone.now().isoformat()}\n"
+            log.started_at = timezone.now()
+            log.save()
+        except VideoConversionLog.DoesNotExist:
+            pass
+        
+        # Do synchronous conversion
+        from team.video_converter import convert_to_mp4
+        if convert_to_mp4(original_file_path, output_file_path):
+            # Update video file path
+            instance.video.name = relative_path
+            instance.save(update_fields=['video', 'updated_at'])
+            
+            logger.info(f"✅ Video {instance.id} successfully converted synchronously")
+            
+            # Update conversion log
             try:
                 log = VideoConversionLog.objects.get(video=instance)
-                log.status = VideoConversionLog.STATUS_FAILED
-                log.error_message = f"Failed to queue conversion task: {str(e)}"
-                log.debug_log += f"\n❌ ERROR: Could not queue Celery task\n{str(e)}\n"
+                log.status = VideoConversionLog.STATUS_SUCCESS
+                log.converted_size_mb = os.path.getsize(output_file_path) / (1024 * 1024)
+                log.debug_log += f"✅ Synchronous conversion completed\nOutput file: {mp4_filename}\nConverted size: {log.converted_size_mb:.1f} MB\nCompleted: {timezone.now().isoformat()}\n"
                 log.completed_at = timezone.now()
                 log.save()
             except VideoConversionLog.DoesNotExist:
+                pass
+        else:
+            error_msg = "FFmpeg conversion failed"
+            logger.error(f"❌ {error_msg} for video {instance.id}")
+            
+            try:
+                log = VideoConversionLog.objects.get(video=instance)
+                log.status = VideoConversionLog.STATUS_FAILED
+                log.error_message = error_msg
+                log.debug_log += f"\n❌ ERROR: {error_msg}\nCompleted: {timezone.now().isoformat()}\n"
+                log.completed_at = timezone.now()
+                log.save()
+            except VideoConversionLog.DoesNotExist:
+                pass
+    
+    except Exception as e:
+        logger.exception(f"❌ Synchronous conversion failed for video {instance.id}: {str(e)}")
+        
+        try:
+            log = VideoConversionLog.objects.get(video=instance)
+            log.status = VideoConversionLog.STATUS_FAILED
+            log.error_message = f"Synchronous conversion error: {str(e)}"
+            log.debug_log += f"\n❌ ERROR: {str(e)}\nCompleted: {timezone.now().isoformat()}\n"
+            log.completed_at = timezone.now()
+            log.save()
+        except VideoConversionLog.DoesNotExist:
+            pass
                 pass
     else:
         logger.warning(f"⚠️ Celery not available - video {instance.id} will not be converted")

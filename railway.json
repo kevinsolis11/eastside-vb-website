@@ -10,10 +10,22 @@
   },
   "services": {
     "web": {
-      "startCommand": "cd volleyball_site && gunicorn volleyball_site.wsgi --bind 0.0.0.0:8000"
+      "startCommand": "cd volleyball_site && gunicorn volleyball_site.wsgi --bind 0.0.0.0:8000",
+      "volumes": [
+        {
+          "name": "media",
+          "mountPath": "/data/media"
+        }
+      ]
     },
     "worker": {
-      "startCommand": "cd volleyball_site && celery -A volleyball_site worker -l info --concurrency=2"
+      "startCommand": "cd volleyball_site && celery -A volleyball_site worker -l info --concurrency=2",
+      "volumes": [
+        {
+          "name": "media",
+          "mountPath": "/data/media"
+        }
+      ]
     }
   }
 }

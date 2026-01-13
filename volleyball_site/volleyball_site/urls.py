@@ -30,6 +30,62 @@ def custom_404(request, exception):
     return render(request, '404.html', status=404)
 
 
+def reset_admin(request):
+    """One-time endpoint to reset/create admin account. DELETE THIS AFTER USE."""
+    from django.contrib.auth.models import User
+    
+    results = []
+    
+    # Create or reset admin user
+    try:
+        user, created = User.objects.get_or_create(username='admin')
+        user.set_password('admin123')
+        user.is_staff = True
+        user.is_superuser = True
+        user.is_active = True
+        user.email = 'admin@eastsidevb.com'
+        user.save()
+        results.append(f"✅ admin: {'created' if created else 'reset'} - password: admin123")
+    except Exception as e:
+        results.append(f"❌ admin error: {str(e)}")
+    
+    # Reset kevinsolis password
+    try:
+        user = User.objects.get(username='kevinsolis')
+        user.set_password('kevin123')
+        user.is_superuser = True
+        user.save()
+        results.append("✅ kevinsolis: password reset to kevin123")
+    except User.DoesNotExist:
+        results.append("⚠️ kevinsolis: not found")
+    except Exception as e:
+        results.append(f"❌ kevinsolis error: {str(e)}")
+    
+    # Reset testadmin password  
+    try:
+        user = User.objects.get(username='testadmin')
+        user.set_password('testadmin123')
+        user.is_superuser = True
+        user.save()
+        results.append("✅ testadmin: password reset to testadmin123")
+    except User.DoesNotExist:
+        results.append("⚠️ testadmin: not found")
+    except Exception as e:
+        results.append(f"❌ testadmin error: {str(e)}")
+    
+    return JsonResponse({
+        'message': 'Admin accounts reset!',
+        'results': results,
+        'login_options': [
+            {'username': 'admin', 'password': 'admin123'},
+            {'username': 'kevinsolis', 'password': 'kevin123'},
+            {'username': 'testadmin', 'password': 'testadmin123'},
+        ],
+        'admin_url': '/admin/',
+        'WARNING': '⚠️ DELETE THIS ENDPOINT AFTER USE FOR SECURITY!'
+    })
+
+
 def healthz(request):
     return JsonResponse({'status': 'ok'})
 
@@ -221,6 +277,7 @@ urlpatterns = [
     path('server-status/', server_status),  # Comprehensive server health check
     path('user-debug/', user_debug),  # Debug endpoint for user troubleshooting
     path('video-debug/', video_debug),  # Debug endpoint for video troubleshooting
+    path('reset-admin/', reset_admin),  # ONE-TIME: Reset admin passwords - DELETE AFTER USE!
     path('signup/', signup, name='signup'),
     path('api/', include('team.api_urls')),
     path('', include('team.urls')),

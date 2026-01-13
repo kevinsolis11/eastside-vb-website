@@ -21,22 +21,36 @@ def healthz(request):
 def user_debug(request):
     """Debug endpoint to check users on the server."""
     from django.contrib.auth.models import User
-    from team.models import PlayerProfile
+    from team.models import PlayerProfile, AccessCode
+    import traceback
     
-    users_info = []
-    for user in User.objects.all():
-        has_profile = PlayerProfile.objects.filter(user=user).exists()
-        users_info.append({
-            'username': user.username,
-            'is_staff': user.is_staff,
-            'is_active': user.is_active,
-            'has_playerprofile': has_profile,
+    try:
+        users_info = []
+        for user in User.objects.all():
+            has_profile = PlayerProfile.objects.filter(user=user).exists()
+            users_info.append({
+                'username': user.username,
+                'is_staff': user.is_staff,
+                'is_active': user.is_active,
+                'has_playerprofile': has_profile,
+            })
+        
+        # Test AccessCode query (same as coach_codes view)
+        access_codes_count = AccessCode.objects.count()
+        recent_codes = list(AccessCode.objects.order_by('-created_at')[:5].values('code', 'role', 'is_used'))
+        
+        return JsonResponse({
+            'total_users': User.objects.count(),
+            'users': users_info,
+            'access_codes_count': access_codes_count,
+            'recent_codes': recent_codes,
+            'coach_codes_test': 'OK - AccessCode query works',
         })
-    
-    return JsonResponse({
-        'total_users': User.objects.count(),
-        'users': users_info,
-    })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+            'traceback': traceback.format_exc(),
+        }, status=500)
 
 
 def video_debug(request):

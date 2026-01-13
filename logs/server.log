@@ -52964,3 +52964,39 @@ Running migrations:
 
 0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
 🚀 Starting server on http://127.0.0.1:8000
+📦 Applying database migrations...
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+📁 Collecting static files...
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+🚀 Starting server on http://127.0.0.1:8000
+📦 Applying database migrations...
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+📁 Collecting static files...
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+🚀 Starting server on http://127.0.0.1:8000
+📦 Applying database migrations...
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+📁 Collecting static files...
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+🚀 Starting server on http://127.0.0.1:8000
+📦 Applying database migrations...
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+📁 Collecting static files...
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+🚀 Starting server on http://127.0.0.1:8000

@@ -19,19 +19,114 @@
             <!-- Video Player -->
             <div class="video-player mb-4">
                 {% if video.video %}
-                    <div style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden;">
+                    <div id="videoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden;">
+                        <!-- Loading indicator -->
+                        <div id="videoLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10;">
+                            <div class="spinner-border text-light mb-2" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p>Loading video...</p>
+                        </div>
+                        
+                        <!-- Error message (hidden by default) -->
+                        <div id="videoError" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10; padding: 20px;">
+                            <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #ffc107;"></i>
+                            <h5 class="mt-2">Video Failed to Load</h5>
+                            <p id="errorMessage" class="small">Unable to play video</p>
+                            <a href="{{ video.video.url }}" class="btn btn-warning btn-sm" download>
+                                <i class="bi bi-download"></i> Download Video
+                            </a>
+                        </div>
+                        
                         <video 
                             id="videoPlayer"
                             style="width: 100%; height: 100%; display: block;" 
                             controls 
-                            preload="auto"
+                            preload="metadata"
+                            playsinline
                             controlsList="nodownload">
                             <source src="{{ video.video.url }}" type="video/mp4">
+                            <source src="{{ video.video.url }}" type="video/quicktime">
                             <p>Your browser does not support HTML5 video. 
                                 <a href="{{ video.video.url }}" class="btn btn-sm btn-primary">Download Video Instead</a>
                             </p>
                         </video>
                     </div>
+                    
+                    <!-- Debug info (hidden in production, visible for troubleshooting) -->
+                    <div id="videoDebugInfo" class="alert alert-secondary mt-2 small" style="display: none;">
+                        <strong>Video URL:</strong> <code id="debugUrl">{{ video.video.url }}</code><br>
+                        <strong>Status:</strong> <span id="debugStatus">Checking...</span>
+                    </div>
+                    
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const video = document.getElementById('videoPlayer');
+                        const loading = document.getElementById('videoLoading');
+                        const errorDiv = document.getElementById('videoError');
+                        const errorMsg = document.getElementById('errorMessage');
+                        const debugInfo = document.getElementById('videoDebugInfo');
+                        const debugStatus = document.getElementById('debugStatus');
+                        
+                        // Show debug info if URL has ?debug=1
+                        if (window.location.search.includes('debug=1')) {
+                            debugInfo.style.display = 'block';
+                        }
+                        
+                        // Video can play - hide loading
+                        video.addEventListener('canplay', function() {
+                            loading.style.display = 'none';
+                            if (debugStatus) debugStatus.textContent = 'Ready to play';
+                        });
+                        
+                        video.addEventListener('loadeddata', function() {
+                            loading.style.display = 'none';
+                            if (debugStatus) debugStatus.textContent = 'Video loaded';
+                        });
+                        
+                        // Video error handling
+                        video.addEventListener('error', function(e) {
+                            loading.style.display = 'none';
+                            errorDiv.style.display = 'block';
+                            
+                            let errText = 'Unknown error';
+                            if (video.error) {
+                                switch(video.error.code) {
+                                    case 1: errText = 'Video loading aborted'; break;
+                                    case 2: errText = 'Network error - video file may not exist on server'; break;
+                                    case 3: errText = 'Video decoding failed - format may not be supported'; break;
+                                    case 4: errText = 'Video format not supported by browser'; break;
+                                }
+                            }
+                            errorMsg.textContent = errText;
+                            if (debugStatus) debugStatus.textContent = 'Error: ' + errText;
+                            console.error('Video error:', errText, video.error);
+                        });
+                        
+                        // Timeout - if video doesn't load in 10 seconds
+                        setTimeout(function() {
+                            if (loading.style.display !== 'none' && video.readyState < 2) {
+                                loading.innerHTML = '<i class="bi bi-exclamation-circle" style="font-size: 2rem;"></i><p class="mt-2">Video is taking long to load...<br><small>The file may not exist on the server</small></p>';
+                                if (debugStatus) debugStatus.textContent = 'Timeout - video not loading';
+                            }
+                        }, 10000);
+                        
+                        // Check if video file exists via HEAD request
+                        fetch('{{ video.video.url }}', { method: 'HEAD' })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('HTTP ' + response.status);
+                                }
+                                if (debugStatus) debugStatus.textContent = 'File exists (HTTP ' + response.status + ')';
+                            })
+                            .catch(err => {
+                                loading.style.display = 'none';
+                                errorDiv.style.display = 'block';
+                                errorMsg.textContent = 'Video file not found on server (404). You may need to re-upload.';
+                                if (debugStatus) debugStatus.textContent = 'File NOT found: ' + err.message;
+                            });
+                    });
+                    </script>
                     
                     {% if "mov" in video.video.url|lower %}
                     <div class="alert alert-warning mt-2">

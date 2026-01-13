@@ -4,3 +4,27 @@ Running migrations:
   No migrations to apply.
 
 0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.
+Operations to perform:
+  Apply all migrations: admin, auth, authtoken, contenttypes, django_celery_beat, sessions, team
+Running migrations:
+  No migrations to apply.
+
+0 static files copied to '/Users/klaysolis/eastside vb website/volleyball_site/staticfiles', 169 unmodified.

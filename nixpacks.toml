@@ -3,3 +3,5 @@
 
 [nixpkgs]
 packages = ["ffmpeg"]
+[phases.release]
+cmd = "cd volleyball_site && python manage.py migrate --noinput && python manage.py create_test_coach"

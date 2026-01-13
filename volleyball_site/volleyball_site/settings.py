@@ -199,9 +199,17 @@ if _os.environ.get('RAILWAY_ENVIRONMENT'):
     DEBUG = False
     # Railway handles HTTPS at the edge, so don't redirect
     SECURE_SSL_REDIRECT = False
+    # Session and CSRF cookies - Railway uses HTTPS
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    # Important: Set domain to None to allow Railway's domain
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
     ALLOWED_HOSTS = ['*']  # Railway handles routing
+    # Trust Railway's proxy headers
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # ============================================
 # LOGGING CONFIGURATION - Critical for debugging 500 errors

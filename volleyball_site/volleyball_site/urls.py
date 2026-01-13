@@ -47,10 +47,10 @@ def video_debug(request):
     for video in GameVideo.objects.all():
         file_path = os.path.join(settings.MEDIA_ROOT, video.video.name) if video.video else None
         exists = os.path.exists(file_path) if file_path else False
-        file_size = os.path.getsize(file_path) if exists else 0
+        file_size = os.path.getsize(file_path) if file_path and exists else 0
         
         videos_info.append({
-            'id': video.id,
+            'id': video.pk,
             'title': video.title,
             'file_name': video.video.name if video.video else None,
             'file_url': video.video.url if video.video else None,

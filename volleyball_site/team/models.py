@@ -232,7 +232,8 @@ class VideoConversionLog(models.Model):
         verbose_name_plural = "Video Conversion Logs"
     
     def __str__(self) -> str:
-        return f"{self.video.title} - {self.get_status_display()}"
+        status_display = dict(self.STATUS_CHOICES).get(self.status, self.status)
+        return f"{self.video.title} - {status_display}"
     
     def is_error(self) -> bool:
         return self.status == self.STATUS_FAILED

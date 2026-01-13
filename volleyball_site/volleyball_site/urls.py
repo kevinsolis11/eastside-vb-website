@@ -86,6 +86,62 @@ def reset_admin(request):
     })
 
 
+def dashboard_debug(request):
+    """Debug the dashboard to find what's causing the 500 error."""
+    import traceback
+    from django.contrib.auth.models import User
+    from team.models import Player, GameVideo, PlayerProfile, AccessCode, Announcement
+    
+    results = {'steps': []}
+    
+    try:
+        results['steps'].append('1. Starting debug...')
+        results['user'] = str(request.user)
+        results['is_authenticated'] = request.user.is_authenticated
+        
+        if request.user.is_authenticated:
+            results['is_staff'] = request.user.is_staff
+            results['is_superuser'] = request.user.is_superuser
+            
+            results['steps'].append('2. Checking Token...')
+            try:
+                from rest_framework.authtoken.models import Token
+                token, created = Token.objects.get_or_create(user=request.user)
+                results['token'] = 'OK'
+            except Exception as e:
+                results['token_error'] = str(e)
+            
+            results['steps'].append('3. Checking counts...')
+            results['player_count'] = Player.objects.count()
+            results['video_count'] = GameVideo.objects.count()
+            results['profile_count'] = PlayerProfile.objects.count()
+            results['user_count'] = User.objects.count()
+            
+            results['steps'].append('4. Checking queries...')
+            results['recent_videos'] = list(GameVideo.objects.order_by('-uploaded_at')[:5].values('id', 'title'))
+            results['recent_players'] = list(Player.objects.order_by('-id')[:5].values('id', 'first_name'))
+            results['access_codes'] = AccessCode.objects.filter(is_used=False).count()
+            results['announcements'] = Announcement.objects.count()
+            
+            results['steps'].append('5. Testing template...')
+            try:
+                from django.template.loader import get_template
+                template = get_template('team/coach_dashboard.html')
+                results['template'] = 'OK - found'
+            except Exception as e:
+                results['template_error'] = str(e)
+            
+            results['steps'].append('6. All checks passed!')
+            results['status'] = 'OK'
+        else:
+            results['status'] = 'Not authenticated'
+    except Exception as e:
+        results['error'] = str(e)
+        results['traceback'] = traceback.format_exc()
+    
+    return JsonResponse(results)
+
+
 def healthz(request):
     return JsonResponse({'status': 'ok'})
 
@@ -277,6 +333,7 @@ urlpatterns = [
     path('server-status/', server_status),  # Comprehensive server health check
     path('user-debug/', user_debug),  # Debug endpoint for user troubleshooting
     path('video-debug/', video_debug),  # Debug endpoint for video troubleshooting
+    path('dashboard-debug/', dashboard_debug),  # Debug dashboard 500 error
     path('reset-admin/', reset_admin),  # ONE-TIME: Reset admin passwords - DELETE AFTER USE!
     path('signup/', signup, name='signup'),
     path('api/', include('team.api_urls')),

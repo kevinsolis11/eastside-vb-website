@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Player - Eastside Volleyball{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">⚠️ Delete Player</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Warning!</strong> This action cannot be undone.
+                    </div>
+                    
+                    <p class="lead">Are you sure you want to delete <strong>{{ player_name }}</strong>?</p>
+                    
+                    <p>This will permanently remove:</p>
+                    <ul>
+                        <li>The player profile</li>
+                        <li>All stats for this player</li>
+                        <li>AI summaries</li>
+                        <li>The user account</li>
+                    </ul>
+                    
+                    {% if player %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <p class="mb-1"><strong>Name:</strong> {{ player.first_name }} {{ player.last_name }}</p>
+                            <p class="mb-1"><strong>Number:</strong> #{{ player.number|default:"N/A" }}</p>
+                            <p class="mb-0"><strong>Position:</strong> {{ player.position|default:"N/A" }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{% url 'team:player_stats_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Delete Player
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

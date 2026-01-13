@@ -604,6 +604,57 @@ def player_edit(request, player_id):
     }
     return render(request, 'team/player_edit.html', context)
 
+
+@login_required
+@user_passes_test(is_coach)
+def player_delete(request, player_id):
+    """Coach deletes a player from the team."""
+    player_profile = get_object_or_404(PlayerProfile, pk=player_id)
+    player = player_profile.player
+    user = player_profile.user
+    
+    player_name = f"{player.first_name} {player.last_name}" if player else user.username
+    
+    if request.method == 'POST':
+        # Delete related objects
+        try:
+            # Delete PlayerStats if exists
+            try:
+                player_profile.playerstats.delete()
+            except PlayerStats.DoesNotExist:
+                pass
+            
+            # Delete AISummary if exists
+            try:
+                player_profile.aisummary.delete()
+            except AISummary.DoesNotExist:
+                pass
+            
+            # Delete the Player object if exists
+            if player:
+                player.delete()
+            
+            # Delete the PlayerProfile
+            player_profile.delete()
+            
+            # Delete the User account
+            user.delete()
+            
+            messages.success(request, f'Player "{player_name}" has been removed from the team.')
+            return redirect('team:player_stats_list')
+        except Exception as e:
+            messages.error(request, f'Error deleting player: {str(e)}')
+            return redirect('team:player_stats_list')
+    
+    # GET request - show confirmation page
+    context = {
+        'player_profile': player_profile,
+        'player': player,
+        'player_name': player_name,
+    }
+    return render(request, 'team/player_delete.html', context)
+
+
 @login_required
 @user_passes_test(is_coach)
 def generate_ai_summary(request, player_profile_id):

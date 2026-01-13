@@ -103,6 +103,10 @@
                                    class="btn btn-sm btn-primary" title="Edit stats">
                                     <i class="bi bi-chart-bar"></i> Stats
                                 </a>
+                                <a href="{% url 'team:player_delete' item.profile.pk %}" 
+                                   class="btn btn-sm btn-danger" title="Delete player">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </td>
                         </tr>
                     {% endfor %}

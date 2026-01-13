@@ -18,6 +18,27 @@ def healthz(request):
     return JsonResponse({'status': 'ok'})
 
 
+def user_debug(request):
+    """Debug endpoint to check users on the server."""
+    from django.contrib.auth.models import User
+    from team.models import PlayerProfile
+    
+    users_info = []
+    for user in User.objects.all():
+        has_profile = PlayerProfile.objects.filter(user=user).exists()
+        users_info.append({
+            'username': user.username,
+            'is_staff': user.is_staff,
+            'is_active': user.is_active,
+            'has_playerprofile': has_profile,
+        })
+    
+    return JsonResponse({
+        'total_users': User.objects.count(),
+        'users': users_info,
+    })
+
+
 def video_debug(request):
     """Debug endpoint to check video files on the server."""
     from team.models import GameVideo
@@ -105,6 +126,7 @@ urlpatterns = [
     path('accounts/logout-get/', logout_get, name='logout_get'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('healthz/', healthz),
+    path('user-debug/', user_debug),  # Debug endpoint for user troubleshooting
     path('video-debug/', video_debug),  # Debug endpoint for video troubleshooting
     path('signup/', signup, name='signup'),
     path('api/', include('team.api_urls')),

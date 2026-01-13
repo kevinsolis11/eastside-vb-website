@@ -137,69 +137,78 @@ def staff_check(user):
 @login_required
 @user_passes_test(staff_check)
 def coach_codes(request):
-    codes = AccessCode.objects.order_by('-created_at')[:100]
-    created = []
+    try:
+        codes = AccessCode.objects.order_by('-created_at')[:100]
+        created = []
 
-    if request.method == 'POST':
-        form = GenerateCodeForm(request.POST)
-        if form.is_valid():
-            role = form.cleaned_data['role']
-            count = form.cleaned_data['count']
-            expiry_days = form.cleaned_data.get('expiry_days')
-            email = form.cleaned_data.get('email')
-            for _ in range(count):
-                raw = AccessCode.generate(role=role)
-                if expiry_days:
-                    expires_at = timezone.now() + timedelta(days=expiry_days)
-                    ac = AccessCode.objects.create(code=raw, role=role, expires_at=expires_at, allowed_email=email)
-                else:
-                    ac = AccessCode.objects.create(code=raw, role=role, allowed_email=email)
-                created.append(ac)
-            messages.success(request, f"Generated {count} {role} code(s).")
-            # send email invites via Celery when an email was provided
-            if email:
-                codes_list = [c.code for c in created]
-                signup_url = request.build_absolute_uri(reverse_lazy('signup'))
-                
-                # Check if email is configured before attempting to send
-                email_host = getattr(settings, 'EMAIL_HOST', '').strip()
-                email_user = getattr(settings, 'EMAIL_HOST_USER', '').strip()
-                
-                if not email_host or email_host == 'localhost' or not email_user:
-                    messages.error(
-                        request, 
-                        "⚠️ Email not configured on server. "
-                        "Invite codes generated but NOT sent via email. "
-                        "Please distribute codes manually or contact admin to configure email."
-                    )
-                else:
-                    try:
-                        # Prefer asynchronous scheduling, but in DEBUG (or when Celery isn't running)
-                        # send synchronously so tests and local development see immediate results.
-                        if getattr(settings, 'DEBUG', False):
-                            send_invite_mail_sync(codes_list, email, signup_url)
-                            messages.success(request, f"✓ Invite email(s) sent to {email}.")
-                        else:
-                            try:
-                                tasks.send_invite_mail.apply_async(args=[codes_list, email, signup_url])  # type: ignore
-                                messages.success(request, f"✓ Invite email(s) queued for {email}. Should arrive within 1 minute.")
-                            except Exception as e:
-                                # Fallback to synchronous send if scheduling fails
+        if request.method == 'POST':
+            form = GenerateCodeForm(request.POST)
+            if form.is_valid():
+                role = form.cleaned_data['role']
+                count = form.cleaned_data['count']
+                expiry_days = form.cleaned_data.get('expiry_days')
+                email = form.cleaned_data.get('email')
+                for _ in range(count):
+                    raw = AccessCode.generate(role=role)
+                    if expiry_days:
+                        expires_at = timezone.now() + timedelta(days=expiry_days)
+                        ac = AccessCode.objects.create(code=raw, role=role, expires_at=expires_at, allowed_email=email)
+                    else:
+                        ac = AccessCode.objects.create(code=raw, role=role, allowed_email=email)
+                    created.append(ac)
+                messages.success(request, f"Generated {count} {role} code(s).")
+                # send email invites via Celery when an email was provided
+                if email:
+                    codes_list = [c.code for c in created]
+                    signup_url = request.build_absolute_uri(reverse_lazy('signup'))
+                    
+                    # Check if email is configured before attempting to send
+                    email_host = getattr(settings, 'EMAIL_HOST', '').strip()
+                    email_user = getattr(settings, 'EMAIL_HOST_USER', '').strip()
+                    
+                    if not email_host or email_host == 'localhost' or not email_user:
+                        messages.error(
+                            request, 
+                            "⚠️ Email not configured on server. "
+                            "Invite codes generated but NOT sent via email. "
+                            "Please distribute codes manually or contact admin to configure email."
+                        )
+                    else:
+                        try:
+                            # Prefer asynchronous scheduling, but in DEBUG (or when Celery isn't running)
+                            # send synchronously so tests and local development see immediate results.
+                            if getattr(settings, 'DEBUG', False):
+                                send_invite_mail_sync(codes_list, email, signup_url)
+                                messages.success(request, f"✓ Invite email(s) sent to {email}.")
+                            else:
                                 try:
-                                    send_invite_mail_sync(codes_list, email, signup_url)
-                                    messages.success(request, f"✓ Invite email(s) sent to {email}.")
-                                except Exception as email_err:
-                                    messages.error(
-                                        request,
-                                        f"❌ Failed to send invite email to {email}: {str(email_err)}. "
-                                        f"Codes generated but not sent. Please distribute manually."
-                                    )
-                    except Exception as e:
-                        messages.error(request, f"❌ Error processing email request: {str(e)}")
-    else:
-        form = GenerateCodeForm()
+                                    tasks.send_invite_mail.apply_async(args=[codes_list, email, signup_url])  # type: ignore
+                                    messages.success(request, f"✓ Invite email(s) queued for {email}. Should arrive within 1 minute.")
+                                except Exception as e:
+                                    # Fallback to synchronous send if scheduling fails
+                                    try:
+                                        send_invite_mail_sync(codes_list, email, signup_url)
+                                        messages.success(request, f"✓ Invite email(s) sent to {email}.")
+                                    except Exception as email_err:
+                                        messages.error(
+                                            request,
+                                            f"❌ Failed to send invite email to {email}: {str(email_err)}. "
+                                            f"Codes generated but not sent. Please distribute manually."
+                                        )
+                        except Exception as e:
+                            messages.error(request, f"❌ Error processing email request: {str(e)}")
+        else:
+            form = GenerateCodeForm()
 
-    return render(request, 'team/coach_codes.html', {'form': form, 'codes': codes, 'created': created})
+        return render(request, 'team/coach_codes.html', {'form': form, 'codes': codes, 'created': created})
+    except Exception as e:
+        logger.exception(f"Error in coach_codes view: {str(e)}")
+        return render(request, 'team/coach_codes.html', {
+            'form': GenerateCodeForm(), 
+            'codes': [], 
+            'created': [],
+            'error': str(e)
+        })
 
 
 class CustomLoginView(LoginView):

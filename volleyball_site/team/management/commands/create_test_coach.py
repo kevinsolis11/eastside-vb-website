@@ -8,6 +8,15 @@ class Command(BaseCommand):
     help = 'Create a test coach account'
 
     def handle(self, *args, **options):
+        # Also reset the existing 'coach' account password
+        try:
+            coach_user = User.objects.get(username='coach')
+            coach_user.set_password('coach123')
+            coach_user.save()
+            self.stdout.write(self.style.SUCCESS(f'✅ Reset password for coach account'))
+        except User.DoesNotExist:
+            pass
+        
         username = 'testcoach'
         password = 'coach123'
         email = 'testcoach@eastsidevolleyball.com'

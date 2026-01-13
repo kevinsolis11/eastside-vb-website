@@ -30,9 +30,7 @@ class Command(BaseCommand):
         if not PlayerProfile.objects.filter(user=user).exists():
             PlayerProfile.objects.create(
                 user=user,
-                jersey_number=0,
-                position='Coach',
-                graduation_year=2026
+                position='Coach'
             )
             self.stdout.write(self.style.SUCCESS(f'✅ PlayerProfile created for coach'))
 

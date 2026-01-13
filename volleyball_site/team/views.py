@@ -506,59 +506,69 @@ def player_dashboard(request):
     from django.contrib.auth.models import User
     from rest_framework.authtoken.models import Token
     
-    # Get or create token for the user
-    token, created = Token.objects.get_or_create(user=request.user)
-    
-    # Check if user is coach/staff - show coach dashboard
-    if is_coach(request.user):
-        # Coach Dashboard
-        context = {
-            'is_coach': True,
-            'auth_token': token.key,
-            'total_players': Player.objects.count(),
-            'total_videos': GameVideo.objects.count(),
-            'total_profiles': PlayerProfile.objects.count(),
-            'total_users': User.objects.count(),
-            'recent_videos': GameVideo.objects.order_by('-uploaded_at')[:5],
-            'recent_players': Player.objects.order_by('-id')[:5],
-            'access_codes': AccessCode.objects.filter(is_used=False).order_by('-created_at')[:5],
-            'announcements': Announcement.objects.order_by('-id')[:5],
-        }
-        return render(request, 'team/coach_dashboard.html', context)
-    
-    # Player Dashboard
-    # Check if user has a PlayerProfile
     try:
-        player_profile = request.user.playerprofile
-    except PlayerProfile.DoesNotExist:
-        # User is logged in but not a team member
+        # Get or create token for the user
+        token, created = Token.objects.get_or_create(user=request.user)
+        
+        # Check if user is coach/staff - show coach dashboard
+        if is_coach(request.user):
+            # Coach Dashboard
+            context = {
+                'is_coach': True,
+                'auth_token': token.key,
+                'total_players': Player.objects.count(),
+                'total_videos': GameVideo.objects.count(),
+                'total_profiles': PlayerProfile.objects.count(),
+                'total_users': User.objects.count(),
+                'recent_videos': GameVideo.objects.order_by('-uploaded_at')[:5],
+                'recent_players': Player.objects.order_by('-id')[:5],
+                'access_codes': AccessCode.objects.filter(is_used=False).order_by('-created_at')[:5],
+                'announcements': Announcement.objects.order_by('-id')[:5],
+            }
+            return render(request, 'team/coach_dashboard.html', context)
+        
+        # Player Dashboard
+        # Check if user has a PlayerProfile
+        try:
+            player_profile = request.user.playerprofile
+        except PlayerProfile.DoesNotExist:
+            # User is logged in but not a team member
+            return render(request, 'team/player_dashboard.html', {
+                'player_profile': None,
+                'message': 'Your account is not linked to a player profile yet. Please contact a coach.'
+            })
+        
+        # Get player stats
+        try:
+            stats = player_profile.playerstats
+        except PlayerStats.DoesNotExist:
+            stats = None
+        
+        # Get player videos (featuring them or team videos)
+        videos = GameVideo.objects.filter(private=True).order_by('-game_date')[:5]
+        
+        # Get player info
+        player = player_profile.player
+        
+        # Build context
+        context = {
+            'player_profile': player_profile,
+            'player': player,
+            'stats': stats,
+            'videos': videos,
+            'is_coach': is_coach(request.user),
+        }
+        
+        return render(request, 'team/player_dashboard.html', context)
+    except Exception as e:
+        logger.exception(f"Dashboard error for user {request.user}: {str(e)}")
+        messages.error(request, f"Dashboard error: {str(e)}")
+        # Return a simple response instead of crashing
         return render(request, 'team/player_dashboard.html', {
             'player_profile': None,
-            'message': 'Your account is not linked to a player profile yet. Please contact a coach.'
+            'message': f'Error loading dashboard: {str(e)}',
+            'is_coach': request.user.is_staff,
         })
-    
-    # Get player stats
-    try:
-        stats = player_profile.playerstats
-    except PlayerStats.DoesNotExist:
-        stats = None
-    
-    # Get player videos (featuring them or team videos)
-    videos = GameVideo.objects.filter(private=True).order_by('-game_date')[:5]
-    
-    # Get player info
-    player = player_profile.player
-    
-    # Build context
-    context = {
-        'player_profile': player_profile,
-        'player': player,
-        'stats': stats,
-        'videos': videos,
-        'is_coach': is_coach(request.user),
-    }
-    
-    return render(request, 'team/player_dashboard.html', context)
 
 
 @login_required

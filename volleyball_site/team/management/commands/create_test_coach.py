@@ -1,6 +1,7 @@
 """Management command to create a test coach account."""
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+from team.models import PlayerProfile
 
 
 class Command(BaseCommand):
@@ -24,6 +25,16 @@ class Command(BaseCommand):
             user.last_name = 'Coach'
             user.save()
             self.stdout.write(self.style.SUCCESS(f'✅ Coach account created: {username}'))
+
+        # Create PlayerProfile if it doesn't exist (required for team access)
+        if not PlayerProfile.objects.filter(user=user).exists():
+            PlayerProfile.objects.create(
+                user=user,
+                jersey_number=0,
+                position='Coach',
+                graduation_year=2026
+            )
+            self.stdout.write(self.style.SUCCESS(f'✅ PlayerProfile created for coach'))
 
         self.stdout.write(f'Username: {username}')
         self.stdout.write(f'Password: {password}')

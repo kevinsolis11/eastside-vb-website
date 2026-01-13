@@ -80,6 +80,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'team.middleware.ErrorHandlerMiddleware',  # Custom error logging
 ]
 
 ROOT_URLCONF = 'volleyball_site.urls'
@@ -87,7 +88,7 @@ ROOT_URLCONF = 'volleyball_site.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'team' / 'templates'],  # For custom error pages (500, 404)
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -201,6 +202,52 @@ if _os.environ.get('RAILWAY_ENVIRONMENT'):
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     ALLOWED_HOSTS = ['*']  # Railway handles routing
+
+# ============================================
+# LOGGING CONFIGURATION - Critical for debugging 500 errors
+# ============================================
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {module}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Log all 500 errors
+            'propagate': True,
+        },
+        'team': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
 
 # Use WhiteNoise for simple static file serving (if installed)
 if 'whitenoise.middleware.WhiteNoiseMiddleware' not in globals().get('MIDDLEWARE', []):

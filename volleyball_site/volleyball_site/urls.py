@@ -11,11 +11,89 @@ from django.conf.urls.static import static
 from team.views import CustomLoginView, signup, logout_get
 from django.http import JsonResponse, FileResponse, Http404
 from django.views.static import serve
+from django.shortcuts import render
 import os
+import logging
+
+logger = logging.getLogger('team')
+
+
+# Custom error handlers
+def custom_500(request):
+    """Custom 500 error page with logging."""
+    logger.error(f"500 error on {request.path} for user {request.user}")
+    return render(request, '500.html', status=500)
+
+
+def custom_404(request, exception):
+    """Custom 404 error page."""
+    return render(request, '404.html', status=404)
 
 
 def healthz(request):
     return JsonResponse({'status': 'ok'})
+
+
+def server_status(request):
+    """Comprehensive server health check for diagnosing issues."""
+    import traceback
+    from django.db import connection
+    from django.conf import settings
+    
+    status = {
+        'status': 'ok',
+        'checks': {},
+        'errors': []
+    }
+    
+    # Check database
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        status['checks']['database'] = '✅ Connected'
+    except Exception as e:
+        status['checks']['database'] = f'❌ Error: {str(e)}'
+        status['errors'].append(f'Database: {str(e)}')
+    
+    # Check media directory
+    try:
+        media_exists = os.path.exists(settings.MEDIA_ROOT)
+        media_writable = os.access(settings.MEDIA_ROOT, os.W_OK) if media_exists else False
+        status['checks']['media_root'] = f'{"✅" if media_exists else "❌"} Exists: {media_exists}, Writable: {media_writable}'
+        status['checks']['media_path'] = str(settings.MEDIA_ROOT)
+    except Exception as e:
+        status['checks']['media_root'] = f'❌ Error: {str(e)}'
+    
+    # Check templates
+    try:
+        from django.template.loader import get_template
+        get_template('base.html')
+        status['checks']['templates'] = '✅ base.html found'
+    except Exception as e:
+        status['checks']['templates'] = f'❌ Error: {str(e)}'
+        status['errors'].append(f'Templates: {str(e)}')
+    
+    # Check important models
+    try:
+        from team.models import Player, PlayerProfile, GameVideo, AccessCode
+        status['checks']['models'] = {
+            'players': Player.objects.count(),
+            'profiles': PlayerProfile.objects.count(),
+            'videos': GameVideo.objects.count(),
+            'access_codes': AccessCode.objects.count(),
+        }
+    except Exception as e:
+        status['checks']['models'] = f'❌ Error: {str(e)}'
+        status['errors'].append(f'Models: {str(e)}')
+    
+    # Check settings
+    status['checks']['debug_mode'] = settings.DEBUG
+    status['checks']['railway_env'] = bool(os.environ.get('RAILWAY_ENVIRONMENT'))
+    
+    if status['errors']:
+        status['status'] = 'error'
+    
+    return JsonResponse(status)
 
 
 def user_debug(request):
@@ -140,12 +218,17 @@ urlpatterns = [
     path('accounts/logout-get/', logout_get, name='logout_get'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('healthz/', healthz),
+    path('server-status/', server_status),  # Comprehensive server health check
     path('user-debug/', user_debug),  # Debug endpoint for user troubleshooting
     path('video-debug/', video_debug),  # Debug endpoint for video troubleshooting
     path('signup/', signup, name='signup'),
     path('api/', include('team.api_urls')),
     path('', include('team.urls')),
 ]
+
+# Custom error handlers
+handler500 = 'volleyball_site.urls.custom_500'
+handler404 = 'volleyball_site.urls.custom_404'
 
 # Serve media files - this works in BOTH debug and production modes
 # This is critical for video playback on Railway

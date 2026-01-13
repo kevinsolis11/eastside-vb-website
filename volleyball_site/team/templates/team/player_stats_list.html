@@ -19,149 +19,149 @@
 
     <!-- Messages -->
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
     {% endif %}
 
     <!-- Stats Table -->
     {% if stats_list %}
-        <div class="table-responsive">
-            <table class="table table-hover table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Player</th>
-                        <th class="text-center">Kills</th>
-                        <th class="text-center">Blocks</th>
-                        <th class="text-center">Aces</th>
-                        <th class="text-center">Digs</th>
-                        <th class="text-center">Last Updated</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in stats_list %}
-                        <tr>
-                            <td>
-                                {% if item.player %}
-                                    <strong>#{{ item.player.number|default:"—" }}</strong>
-                                {% else %}
-                                    <span class="text-muted">—</span>
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Player</th>
+                    <th class="text-center">Kills</th>
+                    <th class="text-center">Blocks</th>
+                    <th class="text-center">Aces</th>
+                    <th class="text-center">Digs</th>
+                    <th class="text-center">Last Updated</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in stats_list %}
+                <tr>
+                    <td>
+                        {% if item.player %}
+                        <strong>#{{ item.player.number|default:"—" }}</strong>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            {% if item.player %}
+                            <a href="{% url 'team:player_stats_view' item.profile.pk %}" class="text-decoration-none">
+                                <strong>{{ item.player.first_name }} {{ item.player.last_name }}</strong>
+                                {% if item.player.position %}
+                                <br><small class="text-muted">{{ item.player.position }}</small>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <div>
-                                    {% if item.player %}
-                                        <a href="{% url 'team:player_stats_view' item.profile.pk %}" class="text-decoration-none">
-                                            <strong>{{ item.player.first_name }} {{ item.player.last_name }}</strong>
-                                            {% if item.player.position %}
-                                                <br><small class="text-muted">{{ item.player.position }}</small>
-                                            {% endif %}
-                                        </a>
-                                    {% else %}
-                                        <a href="{% url 'team:player_stats_view' item.profile.pk %}" class="text-decoration-none">
-                                            <strong>{{ item.profile.user.username }}</strong>
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-primary">{{ item.stats.kills }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-info">{{ item.stats.blocks }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-success">{{ item.stats.aces }}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-warning">{{ item.stats.digs }}</span>
-                            </td>
-                            <td class="text-center">
-                                <small class="text-muted">
-                                    {% if item.stats.updated_at %}
-                                        {{ item.stats.updated_at|date:"M d, Y" }}
-                                    {% else %}
-                                        Never
-                                    {% endif %}
-                                </small>
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'team:player_stats_view' item.profile.pk %}" 
-                                   class="btn btn-sm btn-info" title="View stats">
-                                    <i class="bi bi-eye"></i> View
-                                </a>
-                                <a href="{% url 'team:player_edit' item.profile.pk %}" 
-                                   class="btn btn-sm btn-warning" title="Edit player info">
-                                    <i class="bi bi-pencil"></i> Info
-                                </a>
-                                <a href="{% url 'team:player_stats_edit' item.profile.pk %}" 
-                                   class="btn btn-sm btn-primary" title="Edit stats">
-                                    <i class="bi bi-chart-bar"></i> Stats
-                                </a>
-                                <a href="{% url 'team:player_delete' item.profile.pk %}" 
-                                   class="btn btn-sm btn-danger" title="Delete player">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'team:player_stats_view' item.profile.pk %}" class="text-decoration-none">
+                                <strong>{{ item.profile.user.username }}</strong>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-primary">{{ item.stats.kills }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-info">{{ item.stats.blocks }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-success">{{ item.stats.aces }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-warning">{{ item.stats.digs }}</span>
+                    </td>
+                    <td class="text-center">
+                        <small class="text-muted">
+                            {% if item.stats.updated_at %}
+                            {{ item.stats.updated_at|date:"M d, Y" }}
+                            {% else %}
+                            Never
+                            {% endif %}
+                        </small>
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'team:player_stats_view' item.profile.pk %}" class="btn btn-sm btn-info"
+                            title="View stats">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <a href="{% url 'team:player_edit' item.profile.pk %}" class="btn btn-sm btn-warning"
+                            title="Edit player info">
+                            <i class="bi bi-pencil"></i> Info
+                        </a>
+                        <a href="{% url 'team:player_stats_edit' item.profile.pk %}" class="btn btn-sm btn-primary"
+                            title="Edit stats">
+                            <i class="bi bi-chart-bar"></i> Stats
+                        </a>
+                        <a href="{% url 'team:player_delete' item.profile.pk %}" class="btn btn-sm btn-danger"
+                            title="Delete player">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Summary Stats -->
-        <div class="row mt-5">
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted">Total Kills</h6>
-                        <h3 class="card-text text-primary">
-                            {{ total_kills }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted">Total Blocks</h6>
-                        <h3 class="card-text text-info">
-                            {{ total_blocks }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted">Total Aces</h6>
-                        <h3 class="card-text text-success">
-                            {{ total_aces }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3">
-                <div class="card text-center">
-                    <div class="card-body">
-                        <h6 class="card-title text-muted">Total Digs</h6>
-                        <h3 class="card-text text-warning">
-                            {{ total_digs }}
-                        </h3>
-                    </div>
+    <!-- Summary Stats -->
+    <div class="row mt-5">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Kills</h6>
+                    <h3 class="card-text text-primary">
+                        {{ total_kills }}
+                    </h3>
                 </div>
             </div>
         </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Blocks</h6>
+                    <h3 class="card-text text-info">
+                        {{ total_blocks }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Aces</h6>
+                    <h3 class="card-text text-success">
+                        {{ total_aces }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6 class="card-title text-muted">Total Digs</h6>
+                    <h3 class="card-text text-warning">
+                        {{ total_digs }}
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
     {% else %}
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> No players found. 
-            <a href="{% url 'team:player-list' %}">Create players</a> to get started.
-        </div>
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No players found.
+        <a href="{% url 'team:player-list' %}">Create players</a> to get started.
+    </div>
     {% endif %}
 </div>
 

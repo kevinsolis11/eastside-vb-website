@@ -206,13 +206,15 @@
         <!-- AI Chat Link -->
         <div class="col-md-6 mb-4">
             <a href="{% url 'team:ai_chat' %}" class="text-decoration-none">
-                <div class="card h-100 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; cursor: pointer; transition: transform 0.2s;">
+                <div class="card h-100 shadow-sm"
+                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; cursor: pointer; transition: transform 0.2s;">
                     <div class="card-body text-white text-center py-5">
                         <div style="font-size: 3rem; margin-bottom: 15px;">
                             <i class="bi bi-robot"></i>
                         </div>
                         <h5 class="mb-2">AI Coach Assistant</h5>
-                        <p class="mb-0" style="font-size: 0.95rem;">Ask detailed questions about players, stats, and more</p>
+                        <p class="mb-0" style="font-size: 0.95rem;">Ask detailed questions about players, stats, and
+                            more</p>
                         <div style="margin-top: 15px; font-size: 1.1rem; opacity: 0.9;">
                             <i class="bi bi-arrow-right"></i> Open Chat
                         </div>
@@ -298,7 +300,8 @@
                             <h6 class="mb-1">{{ video.title }}</h6>
                             <small>{{ video.uploaded_at|date:"M d" }}</small>
                         </div>
-                        <small class="text-muted">{{ video.game_type }} {% if video.opponent %}vs {{ video.opponent }}{% endif %}</small>
+                        <small class="text-muted">{{ video.game_type }} {% if video.opponent %}vs {{ video.opponent }}{%
+                            endif %}</small>
                     </a>
                     {% empty %}
                     <div class="list-group-item text-muted">No videos yet</div>

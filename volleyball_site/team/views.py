@@ -608,7 +608,7 @@ def player_edit(request, player_id):
 @login_required
 @user_passes_test(is_coach)
 def player_delete(request, player_id):
-    """Coach deletes a player from the team."""
+    """Coach deletes a player from the team (by PlayerProfile ID)."""
     player_profile = get_object_or_404(PlayerProfile, pk=player_id)
     player = player_profile.player
     user = player_profile.user
@@ -645,6 +645,63 @@ def player_delete(request, player_id):
         except Exception as e:
             messages.error(request, f'Error deleting player: {str(e)}')
             return redirect('team:player_stats_list')
+    
+    # GET request - show confirmation page
+    context = {
+        'player_profile': player_profile,
+        'player': player,
+        'player_name': player_name,
+    }
+    return render(request, 'team/player_delete.html', context)
+
+
+@login_required
+@user_passes_test(is_coach)
+def player_delete_by_player(request, player_id):
+    """Coach deletes a player from the team (by Player ID - for player list page)."""
+    player = get_object_or_404(Player, pk=player_id)
+    
+    # Find the PlayerProfile for this player
+    try:
+        player_profile = PlayerProfile.objects.get(player=player)
+        user = player_profile.user
+    except PlayerProfile.DoesNotExist:
+        player_profile = None
+        user = None
+    
+    player_name = f"{player.first_name} {player.last_name}"
+    
+    if request.method == 'POST':
+        try:
+            # Delete related objects
+            if player_profile:
+                # Delete PlayerStats if exists
+                try:
+                    player_profile.playerstats.delete()
+                except PlayerStats.DoesNotExist:
+                    pass
+                
+                # Delete AISummary if exists
+                try:
+                    player_profile.aisummary.delete()
+                except AISummary.DoesNotExist:
+                    pass
+                
+                # Delete the PlayerProfile
+                player_profile.delete()
+                
+                # Delete the User account
+                if user:
+                    user.delete()
+            
+            # Delete the Player object
+            player.delete()
+            
+            messages.success(request, f'Player "{player_name}" has been removed from the team.')
+            return redirect('team:player-list')
+        except Exception as e:
+            messages.error(request, f'Error deleting player: {str(e)}')
+            return redirect('team:player-list')
     
     # GET request - show confirmation page
     context = {

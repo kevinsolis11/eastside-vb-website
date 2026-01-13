@@ -14,17 +14,20 @@
                     <div class="alert alert-warning">
                         <strong>Warning!</strong> This action cannot be undone.
                     </div>
-                    
+
                     <p class="lead">Are you sure you want to delete <strong>{{ player_name }}</strong>?</p>
-                    
+
                     <p>This will permanently remove:</p>
                     <ul>
+                        <li>The player record</li>
+                        {% if player_profile %}
                         <li>The player profile</li>
                         <li>All stats for this player</li>
                         <li>AI summaries</li>
                         <li>The user account</li>
+                        {% endif %}
                     </ul>
-                    
+
                     {% if player %}
                     <div class="card mb-3">
                         <div class="card-body">
@@ -34,11 +37,11 @@
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     <form method="post">
                         {% csrf_token %}
                         <div class="d-flex gap-2 justify-content-end">
-                            <a href="{% url 'team:player_stats_list' %}" class="btn btn-secondary">
+                            <a href="javascript:history.back()" class="btn btn-secondary">
                                 <i class="bi bi-x-circle"></i> Cancel
                             </a>
                             <button type="submit" class="btn btn-danger">

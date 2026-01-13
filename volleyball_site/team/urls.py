@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     PlayerListView, PlayerDetailView, signup, coach_codes,
     video_upload, video_list, video_detail, video_edit, video_delete,
-    player_stats_list, player_stats_edit, player_stats_view, player_dashboard, player_edit, player_delete,
+    player_stats_list, player_stats_edit, player_stats_view, player_dashboard, player_edit, player_delete, player_delete_by_player,
     generate_ai_summary, announcement_list, announcement_create, announcement_edit, 
     announcement_delete, announcement_feed, request_video_analysis, video_analysis_detail,
     ai_chat_view, settings_view
@@ -37,6 +37,7 @@ urlpatterns = [
     path('stats/<int:player_id>/view/', player_stats_view, name='player_stats_view'),
     path('player/<int:player_id>/edit/', player_edit, name='player_edit'),
     path('player/<int:player_id>/delete/', player_delete, name='player_delete'),
+    path('player/<int:player_id>/remove/', player_delete_by_player, name='player_delete_by_player'),
     
     # AI summary endpoints
     path('player/<int:player_profile_id>/ai-summary/', generate_ai_summary, name='generate_ai_summary'),

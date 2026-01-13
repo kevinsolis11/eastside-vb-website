@@ -19,79 +19,77 @@
             <!-- Video Player -->
             <div class="video-player mb-4">
                 {% if video.video %}
-                    <div id="videoContainer" style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden;">
-                        <!-- Loading indicator -->
-                        <div id="videoLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10;">
-                            <div class="spinner-border text-light mb-2" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                            <p>Loading video...</p>
+                <div id="videoContainer"
+                    style="position: relative; width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden;">
+                    <!-- Loading indicator -->
+                    <div id="videoLoading"
+                        style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10;">
+                        <div class="spinner-border text-light mb-2" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        
-                        <!-- Error message (hidden by default) -->
-                        <div id="videoError" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10; padding: 20px;">
-                            <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #ffc107;"></i>
-                            <h5 class="mt-2">Video Failed to Load</h5>
-                            <p id="errorMessage" class="small">Unable to play video</p>
-                            <a href="{{ video.video.url }}" class="btn btn-warning btn-sm" download>
-                                <i class="bi bi-download"></i> Download Video
-                            </a>
-                        </div>
-                        
-                        <video 
-                            id="videoPlayer"
-                            style="width: 100%; height: 100%; display: block;" 
-                            controls 
-                            preload="metadata"
-                            playsinline
-                            controlsList="nodownload">
-                            <source src="{{ video.video.url }}" type="video/mp4">
-                            <source src="{{ video.video.url }}" type="video/quicktime">
-                            <p>Your browser does not support HTML5 video. 
-                                <a href="{{ video.video.url }}" class="btn btn-sm btn-primary">Download Video Instead</a>
-                            </p>
-                        </video>
+                        <p>Loading video...</p>
                     </div>
-                    
-                    <!-- Debug info (hidden in production, visible for troubleshooting) -->
-                    <div id="videoDebugInfo" class="alert alert-secondary mt-2 small" style="display: none;">
-                        <strong>Video URL:</strong> <code id="debugUrl">{{ video.video.url }}</code><br>
-                        <strong>Status:</strong> <span id="debugStatus">Checking...</span>
+
+                    <!-- Error message (hidden by default) -->
+                    <div id="videoError"
+                        style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; text-align: center; z-index: 10; padding: 20px;">
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; color: #ffc107;"></i>
+                        <h5 class="mt-2">Video Failed to Load</h5>
+                        <p id="errorMessage" class="small">Unable to play video</p>
+                        <a href="{{ video.video.url }}" class="btn btn-warning btn-sm" download>
+                            <i class="bi bi-download"></i> Download Video
+                        </a>
                     </div>
-                    
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
+
+                    <video id="videoPlayer" style="width: 100%; height: 100%; display: block;" controls
+                        preload="metadata" playsinline controlsList="nodownload">
+                        <source src="{{ video.video.url }}" type="video/mp4">
+                        <source src="{{ video.video.url }}" type="video/quicktime">
+                        <p>Your browser does not support HTML5 video.
+                            <a href="{{ video.video.url }}" class="btn btn-sm btn-primary">Download Video Instead</a>
+                        </p>
+                    </video>
+                </div>
+
+                <!-- Debug info (hidden in production, visible for troubleshooting) -->
+                <div id="videoDebugInfo" class="alert alert-secondary mt-2 small" style="display: none;">
+                    <strong>Video URL:</strong> <code id="debugUrl">{{ video.video.url }}</code><br>
+                    <strong>Status:</strong> <span id="debugStatus">Checking...</span>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
                         const video = document.getElementById('videoPlayer');
                         const loading = document.getElementById('videoLoading');
                         const errorDiv = document.getElementById('videoError');
                         const errorMsg = document.getElementById('errorMessage');
                         const debugInfo = document.getElementById('videoDebugInfo');
                         const debugStatus = document.getElementById('debugStatus');
-                        
+
                         // Show debug info if URL has ?debug=1
                         if (window.location.search.includes('debug=1')) {
                             debugInfo.style.display = 'block';
                         }
-                        
+
                         // Video can play - hide loading
-                        video.addEventListener('canplay', function() {
+                        video.addEventListener('canplay', function () {
                             loading.style.display = 'none';
                             if (debugStatus) debugStatus.textContent = 'Ready to play';
                         });
-                        
-                        video.addEventListener('loadeddata', function() {
+
+                        video.addEventListener('loadeddata', function () {
                             loading.style.display = 'none';
                             if (debugStatus) debugStatus.textContent = 'Video loaded';
                         });
-                        
+
                         // Video error handling
-                        video.addEventListener('error', function(e) {
+                        video.addEventListener('error', function (e) {
                             loading.style.display = 'none';
                             errorDiv.style.display = 'block';
-                            
+
                             let errText = 'Unknown error';
                             if (video.error) {
-                                switch(video.error.code) {
+                                switch (video.error.code) {
                                     case 1: errText = 'Video loading aborted'; break;
                                     case 2: errText = 'Network error - video file may not exist on server'; break;
                                     case 3: errText = 'Video decoding failed - format may not be supported'; break;
@@ -102,15 +100,15 @@
                             if (debugStatus) debugStatus.textContent = 'Error: ' + errText;
                             console.error('Video error:', errText, video.error);
                         });
-                        
+
                         // Timeout - if video doesn't load in 10 seconds
-                        setTimeout(function() {
+                        setTimeout(function () {
                             if (loading.style.display !== 'none' && video.readyState < 2) {
                                 loading.innerHTML = '<i class="bi bi-exclamation-circle" style="font-size: 2rem;"></i><p class="mt-2">Video is taking long to load...<br><small>The file may not exist on the server</small></p>';
                                 if (debugStatus) debugStatus.textContent = 'Timeout - video not loading';
                             }
                         }, 10000);
-                        
+
                         // Check if video file exists via HEAD request
                         fetch('{{ video.video.url }}', { method: 'HEAD' })
                             .then(response => {
@@ -126,19 +124,20 @@
                                 if (debugStatus) debugStatus.textContent = 'File NOT found: ' + err.message;
                             });
                     });
-                    </script>
-                    
-                    {% if "mov" in video.video.url|lower %}
-                    <div class="alert alert-warning mt-2">
-                        <strong>⚠️ Note:</strong> MOV files have limited browser support. For best experience, please upload MP4 files instead. 
-                        Current video file: <code>{{ video.video }}</code>
-                    </div>
-                    {% endif %}
-                    
+                </script>
+
+                {% if "mov" in video.video.url|lower %}
+                <div class="alert alert-warning mt-2">
+                    <strong>⚠️ Note:</strong> MOV files have limited browser support. For best experience, please upload
+                    MP4 files instead.
+                    Current video file: <code>{{ video.video }}</code>
+                </div>
+                {% endif %}
+
                 {% else %}
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> No video file has been uploaded yet.
-                    </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No video file has been uploaded yet.
+                </div>
                 {% endif %}
             </div>
 
@@ -181,7 +180,8 @@
 
                     <div class="small text-muted">
                         <p>
-                            <strong>Uploaded by:</strong> {{ video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
+                            <strong>Uploaded by:</strong> {{
+                            video.uploaded_by.get_full_name|default:video.uploaded_by.username }}
                             <br />
                             <strong>Uploaded:</strong> {{ video.uploaded_at|date:"F d, Y \a\t H:i" }}
                             <br />
@@ -197,58 +197,61 @@
                         </div>
                         <div class="card-body">
                             {% with log=video.conversion_log %}
-                                <div class="mb-3">
-                                    <strong>Status:</strong> 
-                                    {% if log.status == 'pending' %}
-                                        <span class="badge bg-secondary">⏳ Pending</span>
-                                    {% elif log.status == 'processing' %}
-                                        <span class="badge bg-warning">🔄 Converting to MP4...</span>
-                                    {% elif log.status == 'success' %}
-                                        <span class="badge bg-success">✅ Conversion Complete</span>
-                                    {% elif log.status == 'failed' %}
-                                        <span class="badge bg-danger">❌ Conversion Failed</span>
-                                    {% elif log.status == 'skipped' %}
-                                        <span class="badge bg-info">ℹ️ Already MP4 (No conversion needed)</span>
-                                    {% endif %}
-                                </div>
-
-                                <ul class="list-unstyled small text-muted">
-                                    <li><strong>Original Format:</strong> {{ log.original_format|upper }} ({{ log.original_size_mb|floatformat:1 }} MB)</li>
-                                    {% if log.converted_size_mb > 0 %}
-                                        <li><strong>Converted Size:</strong> {{ log.converted_size_mb|floatformat:1 }} MB</li>
-                                        {% if log.original_size_mb > 0 %}
-                                            {% widthratio log.converted_size_mb log.original_size_mb 100 as compression %}
-                                            <li><strong>Compression:</strong> {{ compression }}% ({{ 100|add:"-"|add:compression }}% reduction)</li>
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if log.celery_task_id %}
-                                        <li><strong>Task ID:</strong> <code>{{ log.celery_task_id }}</code></li>
-                                    {% endif %}
-                                    {% if log.started_at %}
-                                        <li><strong>Started:</strong> {{ log.started_at|date:"F d \a\t H:i" }}</li>
-                                    {% endif %}
-                                    {% if log.completed_at %}
-                                        <li><strong>Completed:</strong> {{ log.completed_at|date:"F d \a\t H:i" }}</li>
-                                    {% endif %}
-                                </ul>
-
-                                {% if log.error_message %}
-                                    <div class="alert alert-danger mt-3 mb-0">
-                                        <strong>❌ Error:</strong> {{ log.error_message }}
-                                    </div>
+                            <div class="mb-3">
+                                <strong>Status:</strong>
+                                {% if log.status == 'pending' %}
+                                <span class="badge bg-secondary">⏳ Pending</span>
+                                {% elif log.status == 'processing' %}
+                                <span class="badge bg-warning">🔄 Converting to MP4...</span>
+                                {% elif log.status == 'success' %}
+                                <span class="badge bg-success">✅ Conversion Complete</span>
+                                {% elif log.status == 'failed' %}
+                                <span class="badge bg-danger">❌ Conversion Failed</span>
+                                {% elif log.status == 'skipped' %}
+                                <span class="badge bg-info">ℹ️ Already MP4 (No conversion needed)</span>
                                 {% endif %}
+                            </div>
 
-                                {% if log.debug_log %}
-                                    <details class="mt-3">
-                                        <summary class="cursor-pointer text-info">📋 Detailed Debug Log</summary>
-                                        <pre class="bg-light p-2 mt-2 small" style="max-height: 200px; overflow-y: auto; border-radius: 4px;">{{ log.debug_log }}</pre>
-                                    </details>
+                            <ul class="list-unstyled small text-muted">
+                                <li><strong>Original Format:</strong> {{ log.original_format|upper }} ({{
+                                    log.original_size_mb|floatformat:1 }} MB)</li>
+                                {% if log.converted_size_mb > 0 %}
+                                <li><strong>Converted Size:</strong> {{ log.converted_size_mb|floatformat:1 }} MB</li>
+                                {% if log.original_size_mb > 0 %}
+                                {% widthratio log.converted_size_mb log.original_size_mb 100 as compression %}
+                                <li><strong>Compression:</strong> {{ compression }}% ({{ 100|add:"-"|add:compression }}%
+                                    reduction)</li>
                                 {% endif %}
+                                {% endif %}
+                                {% if log.celery_task_id %}
+                                <li><strong>Task ID:</strong> <code>{{ log.celery_task_id }}</code></li>
+                                {% endif %}
+                                {% if log.started_at %}
+                                <li><strong>Started:</strong> {{ log.started_at|date:"F d \a\t H:i" }}</li>
+                                {% endif %}
+                                {% if log.completed_at %}
+                                <li><strong>Completed:</strong> {{ log.completed_at|date:"F d \a\t H:i" }}</li>
+                                {% endif %}
+                            </ul>
+
+                            {% if log.error_message %}
+                            <div class="alert alert-danger mt-3 mb-0">
+                                <strong>❌ Error:</strong> {{ log.error_message }}
+                            </div>
+                            {% endif %}
+
+                            {% if log.debug_log %}
+                            <details class="mt-3">
+                                <summary class="cursor-pointer text-info">📋 Detailed Debug Log</summary>
+                                <pre class="bg-light p-2 mt-2 small"
+                                    style="max-height: 200px; overflow-y: auto; border-radius: 4px;">{{ log.debug_log }}</pre>
+                            </details>
+                            {% endif %}
                             {% endwith %}
                         </div>
                     </div>
                     {% endif %}
-                    
+
                     <!-- Debug Info Panel -->
                     <div class="alert alert-secondary mt-3">
                         <strong>🔍 Video Debug Info:</strong>
@@ -258,7 +261,8 @@
                             <li><strong>View count:</strong> {{ video.view_count }}</li>
                             <li><strong>Video ID:</strong> {{ video.id }}</li>
                         </ul>
-                    </div>                </div>
+                    </div>
+                </div>
             </div>
 
             {% if is_coach or is_uploader %}

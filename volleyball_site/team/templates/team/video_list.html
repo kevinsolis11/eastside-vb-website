@@ -20,88 +20,91 @@
     </div>
 
     {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
     {% endif %}
 
     {% if videos %}
-        <div class="row g-4">
-            {% for video in videos %}
-                <div class="col-md-6 col-lg-4">
-                    <a href="{% url 'team:video_detail' video.pk %}" class="text-decoration-none">
-                        <div class="card h-100 video-card shadow-sm">
-                            {% if video.thumbnail %}
-                                <img src="{{ video.thumbnail.url }}" class="card-img-top" alt="{{ video.title }}" style="height: 200px; object-fit: cover;">
-                            {% else %}
-                                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
-                                    <i class="bi bi-film" style="font-size: 3rem; color: white;"></i>
-                                </div>
-                            {% endif %}
-                            
-                            <div class="card-body">
-                                <h5 class="card-title">{{ video.title }}</h5>
-                                
-                                <!-- Conversion Status Badge -->
-                                {% if video.conversion_log %}
-                                    {% with log=video.conversion_log %}
-                                        {% if log.status == 'processing' %}
-                                            <p class="mb-2"><span class="badge bg-warning animate-pulse">🔄 Converting...</span></p>
-                                        {% elif log.status == 'failed' %}
-                                            <p class="mb-2"><span class="badge bg-danger">❌ Conversion Failed</span></p>
-                                        {% elif log.status == 'success' %}
-                                            <p class="mb-2"><span class="badge bg-success">✅ Ready</span></p>
-                                        {% elif log.status == 'skipped' %}
-                                            <p class="mb-2"><span class="badge bg-info">ℹ️ MP4</span></p>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endif %}
-                                
-                                {% if video.game_date %}
-                                    <p class="card-text text-muted small">
-                                        <i class="bi bi-calendar"></i> {{ video.game_date|date:"M d, Y" }}
-                                    </p>
-                                {% endif %}
-                                
-                                {% if video.opponent %}
-                                    <p class="card-text text-muted small">
-                                        <i class="bi bi-people"></i> vs {{ video.opponent }}
-                                    </p>
-                                {% endif %}
-                                
-                                <div class="d-flex justify-content-between align-items-center small text-muted">
-                                    <span><i class="bi bi-eye"></i> {{ video.view_count }} views</span>
-                                    <span class="badge bg-{{ video.get_game_type_display|default:"secondary" }}">
-                                        {{ video.get_game_type_display }}
-                                    </span>
-                                </div>
-                            </div>
-                            
-                            {% if is_coach %}
-                            <div class="card-footer bg-light">
-                                <a href="{% url 'team:video_edit' video.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
-                                <a href="{% url 'team:video_delete' video.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
-                            </div>
-                            {% endif %}
+    <div class="row g-4">
+        {% for video in videos %}
+        <div class="col-md-6 col-lg-4">
+            <a href="{% url 'team:video_detail' video.pk %}" class="text-decoration-none">
+                <div class="card h-100 video-card shadow-sm">
+                    {% if video.thumbnail %}
+                    <img src="{{ video.thumbnail.url }}" class="card-img-top" alt="{{ video.title }}"
+                        style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center"
+                        style="height: 200px;">
+                        <i class="bi bi-film" style="font-size: 3rem; color: white;"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title">{{ video.title }}</h5>
+
+                        <!-- Conversion Status Badge -->
+                        {% if video.conversion_log %}
+                        {% with log=video.conversion_log %}
+                        {% if log.status == 'processing' %}
+                        <p class="mb-2"><span class="badge bg-warning animate-pulse">🔄 Converting...</span></p>
+                        {% elif log.status == 'failed' %}
+                        <p class="mb-2"><span class="badge bg-danger">❌ Conversion Failed</span></p>
+                        {% elif log.status == 'success' %}
+                        <p class="mb-2"><span class="badge bg-success">✅ Ready</span></p>
+                        {% elif log.status == 'skipped' %}
+                        <p class="mb-2"><span class="badge bg-info">ℹ️ MP4</span></p>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
+
+                        {% if video.game_date %}
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-calendar"></i> {{ video.game_date|date:"M d, Y" }}
+                        </p>
+                        {% endif %}
+
+                        {% if video.opponent %}
+                        <p class="card-text text-muted small">
+                            <i class="bi bi-people"></i> vs {{ video.opponent }}
+                        </p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center small text-muted">
+                            <span><i class="bi bi-eye"></i> {{ video.view_count }} views</span>
+                            <span class="badge bg-{{ video.get_game_type_display|default:" secondary" }}">
+                                {{ video.get_game_type_display }}
+                            </span>
                         </div>
-                    </a>
+                    </div>
+
+                    {% if is_coach %}
+                    <div class="card-footer bg-light">
+                        <a href="{% url 'team:video_edit' video.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                        <a href="{% url 'team:video_delete' video.pk %}"
+                            class="btn btn-sm btn-outline-danger">Delete</a>
+                    </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
+            </a>
         </div>
+        {% endfor %}
+    </div>
     {% else %}
-        <div class="alert alert-info" role="alert">
-            <h4 class="alert-heading">📹 No videos yet</h4>
-            <p>
-                {% if is_coach %}
-                    Coaches can <a href="{% url 'team:video_upload' %}" class="alert-link">upload videos here</a>.
-                {% else %}
-                    Check back soon for team videos!
-                {% endif %}
-            </p>
-        </div>
+    <div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">📹 No videos yet</h4>
+        <p>
+            {% if is_coach %}
+            Coaches can <a href="{% url 'team:video_upload' %}" class="alert-link">upload videos here</a>.
+            {% else %}
+            Check back soon for team videos!
+            {% endif %}
+        </p>
+    </div>
     {% endif %}
 </div>
 
@@ -109,14 +112,24 @@
     .video-card {
         transition: transform 0.2s, box-shadow 0.2s;
     }
+
     .video-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
     }
+
     @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.7;
+        }
     }
+
     .animate-pulse {
         animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }

@@ -14,10 +14,12 @@
                 <div class="card-body p-4">
                     <p class="text-muted mb-4">
                         Upload game footage, highlights, or practice videos for the team to view.
-                        <br/>
-                        <small><strong>Supported formats:</strong> MP4 (recommended), MOV, MKV, AVI, WebM (max 35GB)</small>
-                        <br/>
-                        <span class="badge bg-info text-white">✨ Non-MP4 files will automatically convert to MP4 after upload</span>
+                        <br />
+                        <small><strong>Supported formats:</strong> MP4 (recommended), MOV, MKV, AVI, WebM (max
+                            35GB)</small>
+                        <br />
+                        <span class="badge bg-info text-white">✨ Non-MP4 files will automatically convert to MP4 after
+                            upload</span>
                     </p>
 
                     <form method="post" enctype="multipart/form-data" novalidate>
@@ -29,7 +31,7 @@
                             </label>
                             {{ form.title }}
                             {% if form.title.errors %}
-                                <div class="alert alert-danger mt-2">{{ form.title.errors }}</div>
+                            <div class="alert alert-danger mt-2">{{ form.title.errors }}</div>
                             {% endif %}
                             <small class="form-text text-muted">e.g., "State Championship vs Lincoln High"</small>
                         </div>
@@ -40,7 +42,7 @@
                             </label>
                             {{ form.description }}
                             {% if form.description.errors %}
-                                <div class="alert alert-danger mt-2">{{ form.description.errors }}</div>
+                            <div class="alert alert-danger mt-2">{{ form.description.errors }}</div>
                             {% endif %}
                             <small class="form-text text-muted">Game summary, key moments, coaching notes...</small>
                         </div>
@@ -53,7 +55,7 @@
                                     </label>
                                     {{ form.game_type }}
                                     {% if form.game_type.errors %}
-                                        <div class="alert alert-danger mt-2">{{ form.game_type.errors }}</div>
+                                    <div class="alert alert-danger mt-2">{{ form.game_type.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -64,7 +66,7 @@
                                     </label>
                                     {{ form.game_date }}
                                     {% if form.game_date.errors %}
-                                        <div class="alert alert-danger mt-2">{{ form.game_date.errors }}</div>
+                                    <div class="alert alert-danger mt-2">{{ form.game_date.errors }}</div>
                                     {% endif %}
                                 </div>
                             </div>
@@ -76,7 +78,7 @@
                             </label>
                             {{ form.opponent }}
                             {% if form.opponent.errors %}
-                                <div class="alert alert-danger mt-2">{{ form.opponent.errors }}</div>
+                            <div class="alert alert-danger mt-2">{{ form.opponent.errors }}</div>
                             {% endif %}
                         </div>
 
@@ -88,7 +90,7 @@
                                 {{ form.video }}
                             </div>
                             {% if form.video.errors %}
-                                <div class="alert alert-danger mt-2">{{ form.video.errors }}</div>
+                            <div class="alert alert-danger mt-2">{{ form.video.errors }}</div>
                             {% endif %}
                             <small class="form-text text-muted">MP4, MOV, MKV, AVI, or WebM. Maximum 35GB.</small>
                         </div>
@@ -99,14 +101,14 @@
                             </label>
                             {{ form.thumbnail }}
                             {% if form.thumbnail.errors %}
-                                <div class="alert alert-danger mt-2">{{ form.thumbnail.errors }}</div>
+                            <div class="alert alert-danger mt-2">{{ form.thumbnail.errors }}</div>
                             {% endif %}
                             <small class="form-text text-muted">JPG, PNG, or WebP. Maximum 5MB.</small>
                         </div>
 
                         <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" id="{{ form.is_featured.id_for_label }}" 
-                                   name="is_featured" {% if form.is_featured.value %}checked{% endif %}>
+                            <input class="form-check-input" type="checkbox" id="{{ form.is_featured.id_for_label }}"
+                                name="is_featured" {% if form.is_featured.value %}checked{% endif %}>
                             <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
                                 ⭐ Featured (show on home page)
                             </label>

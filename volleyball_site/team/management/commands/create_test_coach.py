@@ -12,27 +12,41 @@ class Command(BaseCommand):
         password = 'coach123'
         email = 'testcoach@eastsidevolleyball.com'
 
-        if User.objects.filter(username=username).exists():
-            user = User.objects.get(username=username)
+        # Get or create user
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': email,
+                'first_name': 'Test',
+                'last_name': 'Coach',
+                'is_staff': True,
+                'is_active': True,
+            }
+        )
+        
+        if not created:
+            # Update existing user
             user.set_password(password)
             user.is_staff = True
+            user.is_active = True
             user.save()
             self.stdout.write(self.style.SUCCESS(f'✅ Coach account updated: {username}'))
         else:
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.is_staff = True
-            user.first_name = 'Test'
-            user.last_name = 'Coach'
+            user.set_password(password)
             user.save()
             self.stdout.write(self.style.SUCCESS(f'✅ Coach account created: {username}'))
 
-        # Create PlayerProfile if it doesn't exist (required for team access)
-        if not PlayerProfile.objects.filter(user=user).exists():
-            PlayerProfile.objects.create(
-                user=user,
-                position='Coach'
-            )
+        # Create or update PlayerProfile
+        profile, profile_created = PlayerProfile.objects.get_or_create(
+            user=user,
+            defaults={'position': 'Coach'}
+        )
+        
+        if profile_created:
             self.stdout.write(self.style.SUCCESS(f'✅ PlayerProfile created for coach'))
+        else:
+            self.stdout.write(self.style.SUCCESS(f'✅ PlayerProfile already exists'))
 
         self.stdout.write(f'Username: {username}')
         self.stdout.write(f'Password: {password}')
+        self.stdout.write(f'Has Profile: True')

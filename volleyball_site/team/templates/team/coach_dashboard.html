@@ -300,8 +300,7 @@
                             <h6 class="mb-1">{{ video.title }}</h6>
                             <small>{{ video.uploaded_at|date:"M d" }}</small>
                         </div>
-                        <small class="text-muted">{{ video.game_type }} {% if video.opponent %}vs {{ video.opponent }}{%
-                            endif %}</small>
+                        <small class="text-muted">{{ video.game_type }} {% if video.opponent %}vs {{ video.opponent }}{% endif %}</small>
                     </a>
                     {% empty %}
                     <div class="list-group-item text-muted">No videos yet</div>

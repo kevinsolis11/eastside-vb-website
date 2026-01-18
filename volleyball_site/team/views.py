@@ -625,6 +625,11 @@ def player_delete(request, player_id):
     player = player_profile.player
     user = player_profile.user
     
+    # Prevent coach from deleting themselves
+    if user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('team:player_stats_list')
+    
     player_name = f"{player.first_name} {player.last_name}" if player else user.username
     
     if request.method == 'POST':
@@ -684,6 +689,11 @@ def player_delete_by_player(request, player_id):
     except PlayerProfile.DoesNotExist:
         player_profile = None
         user = None
+    
+    # Prevent coach from deleting themselves
+    if user and user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('team:player-list')
     
     player_name = f"{player.first_name} {player.last_name}"
     

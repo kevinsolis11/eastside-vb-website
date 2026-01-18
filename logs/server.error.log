@@ -71295,3 +71295,9 @@ Watching for file changes with StatReloader
 [2026-01-12 21:12:58 -0500] [27289] [INFO] Booting worker with pid: 27289
 [2026-01-12 21:12:58 -0500] [27291] [INFO] Booting worker with pid: 27291
 [2026-01-12 21:12:58 -0500] [27296] [INFO] Booting worker with pid: 27296
+[2026-01-16 16:02:47 -0500] [1468] [INFO] Starting gunicorn 23.0.0
+[2026-01-16 16:02:47 -0500] [1468] [INFO] Listening at: http://127.0.0.1:8000 (1468)
+[2026-01-16 16:02:47 -0500] [1468] [INFO] Using worker: gthread
+[2026-01-16 16:02:47 -0500] [1541] [INFO] Booting worker with pid: 1541
+[2026-01-16 16:02:47 -0500] [1543] [INFO] Booting worker with pid: 1543
+[2026-01-16 16:02:47 -0500] [1544] [INFO] Booting worker with pid: 1544
